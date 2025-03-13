@@ -12,4 +12,4 @@ def pred(audio_file):
 
     key, scale, strength = keyAlg(audio)
     bpm, beats, beatsConfidence, _, _ = rhythm_extractor(audio)
-    return round(bpm), danceability,key,scale
+    return round(bpm), danceability, key, scale
