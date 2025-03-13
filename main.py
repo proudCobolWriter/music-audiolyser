@@ -17,5 +17,5 @@ for url in file:
     with open("chart.csv", "a", newline='') as c: 
             chart = csv.DictWriter(c, fieldnames)
             chart.writerow({"Name" : "Anonymous", "Title" : title , "Artist" : artistName, "Genre" :genre,
-                            "BPM" :bpm, "Danceability" : danceability, "Key" : key, "Scale": scale, "Mood" :mood})
+                            "BPM" :bpm, "Danceability" : danceability, "Key" : key, "Scale": scale, "Mood" : mood})
 
