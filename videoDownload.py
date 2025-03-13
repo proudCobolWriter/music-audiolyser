@@ -4,6 +4,7 @@ import re
 
 def videoDownload(URL):
     
+    isDownloaded = False
     outputPath = "songs/%(title)s.%(ext)s"
 
     commandGetFilename = [
@@ -18,6 +19,11 @@ def videoDownload(URL):
         result = subprocess.run(commandGetFilename, capture_output=True, text=True, check=True)
         
         videoFilename = result.stdout.strip()
+        print("vidéo "+videoFilename)
+        videoFilename = re.sub(r"\.[^.]+$", ".mp3", videoFilename)
+        if os.path.exists(f"songs/{videoFilename}"):
+            isDownloaded = True
+            
 
         command_download = [
             'yt-dlp',
@@ -28,11 +34,12 @@ def videoDownload(URL):
             '-o', outputPath,
             URL
         ]
-        
-        subprocess.run(command_download, check=True)
+
+        if not isDownloaded:
+            subprocess.run(command_download, check=True)
+            print("déjà download")
         
         filePath = os.path.join("songs", videoFilename)
-        filePath = re.sub(r"\.[^.]+$", ".mp3", filePath)
         names = re.match(r"^(.*?)\s*[-|–|—｜]\s*(.*?)(\.\w{2,4})?$", videoFilename)
         if names:
             artistName = names.group(1)

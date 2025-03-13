@@ -1,15 +1,13 @@
 import essentia.standard as es 
 
-def pred(audio_file):  
-    loader = es.MonoLoader(filename=audio_file)
-    audio = loader()
+def pred(audio):  
 
     rhythm_extractor = es.RhythmExtractor2013()
     danceabilityAlg = es.Danceability()
     keyAlg = es.KeyExtractor()
 
-    danceability, dfa  = danceabilityAlg(audio)
+    danceability = danceabilityAlg(audio)[0]
 
-    key, scale, strength = keyAlg(audio)
-    bpm, beats, beatsConfidence, _, _ = rhythm_extractor(audio)
+    key, scale = keyAlg(audio)[:2]
+    bpm= rhythm_extractor(audio)[0]
     return round(bpm), danceability, key, scale
