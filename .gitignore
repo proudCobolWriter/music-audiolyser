@@ -91,6 +91,10 @@ ipython_config.py
 #   intended to run in multiple environments; otherwise, check them in:
 .python-version
 pyvenv.cfg
+lib/
+lib64/
+venv/
+.venv/
 
 # pipenv
 #   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
