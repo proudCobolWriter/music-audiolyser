@@ -1,13 +1,19 @@
 import js from "@eslint/js";
 import globals from "globals";
+import importPlugin from "eslint-plugin-import";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-    { ignores: ["dist"] },
+    { ignores: ["./dist"] },
     {
-        extends: [js.configs.recommended, ...tseslint.configs.recommended],
+        extends: [
+            js.configs.recommended,
+            ...tseslint.configs.recommended,
+            "plugin:import/recommended",
+            "plugin:import/typescript",
+        ],
         files: ["**/*.{ts,tsx}"],
         languageOptions: {
             ecmaVersion: 2020,
@@ -22,6 +28,14 @@ export default tseslint.config(
             "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
             "@typescript-eslint/ban-ts-comment": "off",
             "import/first": "off",
+        },
+        settings: {
+            "import/resolver": {
+                // You will also need to install and configure the TypeScript resolver
+                // See also https://github.com/import-js/eslint-import-resolver-typescript#configuration
+                typescript: true,
+                node: true,
+            },
         },
     },
 );
