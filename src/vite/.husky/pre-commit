@@ -1,3 +1,5 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
+echo "a"
+lint-staged --config .lintstagedrc
 echo "$(dirname)"
