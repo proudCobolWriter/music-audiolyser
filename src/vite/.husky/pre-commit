@@ -1,2 +1,2 @@
 echo "$PWD"
-cd ./src/vite/
+cd ./src/vite/ && npx lint-staged --config .lintstagedrc
