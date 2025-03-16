@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,12 +26,15 @@ SECRET_KEY = 'django-insecure--@)qr%8q*sj-1dm)9^mh3a^#cru_^4tseo!32d3m&(h*fl55cb
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'backend', # probably not needed or a bad practice
+    'music_app.apps.MusicAppConfig',
+    'django_vite',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -54,7 +58,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates" / "base.html"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -112,10 +116,29 @@ USE_I18N = True
 USE_TZ = True
 
 
+
+# Vite related
+
+DJANGO_VITE = {
+  "default": {
+    "dev_mode": DEBUG,
+    "manifest_path": os.path.join(BASE_DIR, "vite", "dist", "manifest.json")
+  }
+}
+
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static") # aka staticfiles
+
+print(f"Base directory is {BASE_DIR}")
+
+STATICFILES_DIRS = [
+  BASE_DIR / "vite" / "dist"
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

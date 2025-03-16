@@ -20,6 +20,10 @@ $ myenv\Scripts\activate
 
 $ source myenv/bin/activate
 
+## TODO:
+
+[ ] - Deploy it to ASGI standard
+
 ### Powered by ESSENTIA AI and models, along with Tensor Flow.
 
 ![ESSENTIA](https://essentia.upf.edu/_static/essentia_logo.svg)
