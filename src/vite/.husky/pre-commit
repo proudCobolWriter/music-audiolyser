@@ -1,4 +1,2 @@
 echo "$PWD"
-. src/vite/
-
-npm  lint-staged --config .lintstagedrc
+cd ./src/vite/
