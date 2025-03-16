@@ -8,6 +8,7 @@ import react from "@vitejs/plugin-react-swc";
 export default defineConfig({
     base: "/static/",
     build: {
+        minify: true,
         manifest: "manifest.json",
         outDir: "./dist",
         rollupOptions: {
@@ -18,6 +19,9 @@ export default defineConfig({
             output: {
                 entryFileNames: "[name].js",
                 assetFileNames: "assets/[name].[ext]",
+            },
+            watch: {
+                // https://rollupjs.org/configuration-options/#watch
             },
         },
     },
