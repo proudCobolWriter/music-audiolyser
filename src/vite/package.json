@@ -11,7 +11,8 @@
         "preview": "vite preview",
         "pretty:check": "prettier . --check",
         "pretty:write": "prettier . --write",
-        "prepare": "cd ../.. && husky src/vite/.husky || true"
+        "prepare": "cd ../.. && husky src/vite/.husky || true",
+        "test": "Echo \"Error: no test specified\" && exit 0"
     },
     "dependencies": {
         "react": "^19.0.0",
