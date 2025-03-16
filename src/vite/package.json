@@ -11,7 +11,7 @@
         "preview": "vite preview",
         "pretty:check": "prettier . --check",
         "pretty:write": "prettier . --write",
-        "prepare": "cd ../.. && husky src/vite/.husky"
+        "prepare": "cd ../.. && husky src/vite/.husky || true"
     },
     "dependencies": {
         "react": "^19.0.0",
