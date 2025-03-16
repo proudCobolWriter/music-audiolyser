@@ -1,1 +1,1 @@
-cd ./src/vite && npx lint-staged 
+cd ./src/vite && npx lint-staged --config .lintstagedrc
