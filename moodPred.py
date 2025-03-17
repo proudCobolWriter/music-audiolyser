@@ -4,11 +4,11 @@ import numpy as np
 
 def moodPred(audio):
 
-    if not hasattr(moodPred, 'embedding_model'):
-        moodPred.embedding_model = TensorflowPredictEffnetDiscogs(graphFilename="data/discogs-effnet-bs64-1.pb", output="PartitionedCall:1")
-    embedding_model = moodPred.embedding_model
+    if not hasattr(moodPred, 'embeddingModel'):
+        moodPred.embeddingModel = TensorflowPredictEffnetDiscogs(graphFilename="data/discogs-effnet-bs64-1.pb", output="PartitionedCall:1")
+    embeddingModel = moodPred.embeddingModel
 
-    embeddings = embedding_model(audio)
+    embeddings = embeddingModel(audio)
 
     if not hasattr(moodPred, 'model'):
         moodPred.model = TensorflowPredict2D(graphFilename="data/mtg_jamendo_moodtheme-discogs-effnet-1.pb")

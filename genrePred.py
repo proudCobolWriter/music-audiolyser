@@ -6,11 +6,11 @@ import numpy as np
 
 def genrePred(audio):
 
-    if not hasattr(genrePred, 'embedding_model'):
-        genrePred.embedding_model = TensorflowPredictEffnetDiscogs(graphFilename="data/discogs-effnet-bs64-1.pb", output="PartitionedCall:1")
-    embedding_model = genrePred.embedding_model
+    if not hasattr(genrePred, 'embeddingModel'):
+        genrePred.embeddingModel = TensorflowPredictEffnetDiscogs(graphFilename="data/discogs-effnet-bs64-1.pb", output="PartitionedCall:1")
+    embeddingModel = genrePred.embeddingModel
 
-    embeddings = embedding_model(audio)
+    embeddings = embeddingModel(audio)
 
     if not hasattr(genrePred, 'model'):
         genrePred.model = TensorflowPredict2D(graphFilename="data/genre_discogs400-discogs-effnet-1.pb", input="serving_default_model_Placeholder", output="PartitionedCall:0")

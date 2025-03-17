@@ -13,7 +13,7 @@ with open("songReq.txt", "r") as f:
 for url in file:
     try:
         directory, artistName, title = videoDownload(url)
-        audio = es.MonoLoader(filename=directory, sampleRate=16000, resampleQuality=4)()
+        audio = es.MonoLoader(filename=directory, sampleRate= 44100, resampleQuality=4)()
     except:
         continue
 
