@@ -11,6 +11,7 @@ export default defineConfig({
         minify: true,
         manifest: "manifest.json",
         outDir: "./dist",
+
         rollupOptions: {
             //input: "/path/to/main.js"
             input: {
@@ -24,6 +25,9 @@ export default defineConfig({
                 // https://rollupjs.org/configuration-options/#watch
             },
         },
+    },
+    server: {
+        host: "0.0.0.0", // Listen on all network interfaces to make it work on both localhost and 127.0.0.1
     },
     plugins: [react()],
 }) satisfies UserConfig;
