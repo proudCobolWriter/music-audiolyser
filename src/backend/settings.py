@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import os
+import os, sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,16 +24,69 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure--@)qr%8q*sj-1dm)9^mh3a^#cru_^4tseo!32d3m&(h*fl55cb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*"] # don't use "*" for production, but rather the server url (ex: www.google.fr)
+
+
+# Logging
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt' : "%d/%b/%Y %H:%M:%S"
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        "file": {
+            'level': 'DEBUG',
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": "../logs/django_app.log",
+            "when": "midnight",
+            "backupCount": 30,
+            "formatter": "verbose"
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'propagate': True,
+            # 'level': 'DEBUG', spams the console essentially
+        }
+    }
+}
 
 
 # Application definition
 
+# ideally HTTPS origins
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+]
+
 INSTALLED_APPS = [
     'backend', # probably not needed or a bad practice
     'music_app.apps.MusicAppConfig',
+    'corsheaders',
     'django_vite',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -44,6 +97,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -115,30 +171,30 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-
-# Vite related
-
-DJANGO_VITE = {
-  "default": {
-    "dev_mode": DEBUG,
-    "manifest_path": os.path.join(BASE_DIR, "vite", "dist", "manifest.json")
-  }
-}
-
-
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static") # aka staticfiles
 
-print(f"Base directory is {BASE_DIR}")
+print(f"DEBUG: Base directory is {BASE_DIR}")
 
 STATICFILES_DIRS = [
   BASE_DIR / "vite" / "dist"
 ]
+
+# Vite related
+
+DJANGO_VITE = {
+  "default": {
+    "dev_mode": DEBUG,
+    "manifest_path": os.path.join(BASE_DIR, "vite", "dist", "manifest.json"),
+    "dev_server_protocol": "http",
+    "dev_server_host": "localhost",
+    "dev_server_port": 5173,
+    "static_url_prefix": "/",  # No prefix since base is '/'
+  }
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

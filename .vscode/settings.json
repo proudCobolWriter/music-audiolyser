@@ -1,5 +1,7 @@
 {
     "editor.formatOnSave": true,
     "editor.detectIndentation": false,
-    "prettier.endOfLine": "lf"
+    "prettier.endOfLine": "lf",
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "terminal.integrated.enablePersistentSessions": true
 }

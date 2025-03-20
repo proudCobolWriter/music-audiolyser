@@ -1,20 +1,29 @@
-/* eslint-disable import/first */
+// As per:
+// https://vite.dev/guide/backend-integration.html
+
 if (import.meta.env.MODE !== "development") {
     // @ts-expect-error
     import("vite/modulepreload-polyfill");
 }
 
-import { useState } from "react";
+import { useState, type FC } from "react";
 
-import reactLogo from "/react.svg";
-import viteLogo from "/vite.svg";
+// Resources importing
+
+import websiteLogo from "/favicon.svg?url";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "./assets/vite.svg";
 import "./css/App.css";
 
-function App() {
+// Component definition
+
+const App: FC = () => {
     const [count, setCount] = useState(0);
 
     return (
         <>
+            <meta name="description" content="Music Analyser created using react, vite and django." />
+            <link rel="icon" type="image/svg+xml" href={websiteLogo} />
             <div>
                 <a href="https://vite.dev" target="_blank">
                     <img src={viteLogo} className="logo" alt="Vite logo" />
@@ -33,6 +42,6 @@ function App() {
             <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
         </>
     );
-}
+};
 
 export default App;

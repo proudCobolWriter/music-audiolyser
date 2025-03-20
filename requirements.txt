@@ -7,3 +7,5 @@ PyYAML==6.0.2
 six==1.17.0
 sqlparse==0.5.3
 typing_extensions==4.12.2
+whitenose==6.9.0
+django-cors-headers==4.7.0

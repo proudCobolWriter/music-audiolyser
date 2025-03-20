@@ -14,8 +14,4 @@ const config: Config = {
     singleQuote: true,
 };
 
-const a = () => {
-    console.log("a");
-};
-
 export default config;
