@@ -1,0 +1,7 @@
+cd ./src/vite && npx lint-staged --config .lintstagedrc || { echo "Lint checks failed!"; exit 1;}
+
+npm test || { echo "Tests failed!"; exit 1;}
+
+echo "Pre-commit checks passed!"
+
+exit 0

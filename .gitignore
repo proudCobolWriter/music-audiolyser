@@ -61,9 +61,14 @@ cover/
 
 # Django stuff:
 *.log
+logs/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+src/static/**/*
+
+# Keep all gitkeeps in the git working tree
+!**/*.gitkeep
 
 # Flask stuff:
 instance/

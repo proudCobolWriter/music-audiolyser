@@ -1,0 +1,71 @@
+{
+    "name": "music-audiolyser",
+    "private": true,
+    "version": "1.0.0",
+    "type": "module",
+    "categories": [
+        "Other"
+    ],
+    "description": "A fairly simple UI for a Django app",
+    "readme": "A fairly simple UI for a Django app",
+    "keywords": [
+        "react",
+        "typescript",
+        "vite",
+        "django",
+        "ui",
+        "swc",
+        "spa"
+    ],
+    "homepage": "",
+    "licenses": [
+        {
+            "type": "AGPL-3.0-only",
+            "url": "https://opensource.org/license/agpl-v3"
+        }
+    ],
+    "scripts": {
+        "dev": "vite",
+        "build": "cross-env NODE_ENV=production tsc -b && vite build",
+        "check": "tsc --noEmit",
+        "lint": "eslint .",
+        "lint:staged": "lint-staged --config .lintstagedrc",
+        "prettify:check": "prettier . --check",
+        "prettify:write": "prettier . --write",
+        "prepare": "cd ../.. && husky src/vite/.husky || true",
+        "collectstatic": "wsl bash -c \"source ../../.venv/bin/activate && pip list && python ../manage.py collectstatic --no-input --clear && touch ../static/.gitkeep\"",
+        "test": "Echo \"Error: no test specified\" && exit 0"
+    },
+    "dependencies": {
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0"
+    },
+    "engines": {
+        "node": ">=18.0.0",
+        "pnpm": ">=8.0.0",
+        "npm": ">=10.0.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.22.0",
+        "@types/node": "^22.13.10",
+        "@types/react": "^19.0.10",
+        "@types/react-dom": "^19.0.4",
+        "@typescript-eslint/eslint-plugin": "^8.26.1",
+        "@typescript-eslint/parser": "^8.26.1",
+        "@vitejs/plugin-react-swc": "^3.8.0",
+        "cross-env": "^7.0.3",
+        "eslint": "^9.22.0",
+        "eslint-config-prettier": "^10.1.1",
+        "eslint-import-resolver-typescript": "^3.9.1",
+        "eslint-plugin-import": "^2.31.0",
+        "eslint-plugin-react-hooks": "^5.1.0",
+        "eslint-plugin-react-refresh": "^0.4.19",
+        "globals": "^15.15.0",
+        "husky": "^9.1.7",
+        "lint-staged": "^15.5.0",
+        "prettier": "3.5.3",
+        "typescript": "~5.7.2",
+        "typescript-eslint": "^8.26.1",
+        "vite": "^6.2.0"
+    }
+}
