@@ -30,7 +30,6 @@
         "check": "tsc --noEmit",
         "lint": "eslint .",
         "lint:staged": "lint-staged --config .lintstagedrc",
-        "preview": "vite preview",
         "prettify:check": "prettier . --check",
         "prettify:write": "prettier . --write",
         "prepare": "cd ../.. && husky src/vite/.husky || true",
