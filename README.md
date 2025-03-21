@@ -23,6 +23,8 @@ $ source myenv/bin/activate
 ## TODO:
 
 [ ] - Deploy it to ASGI standard
+[ ] - Deploy with Docker and Dockerfile
+[ ] - Prettify the code with some python analog
 
 ### Powered by ESSENTIA AI and models, along with Tensor Flow.
 
