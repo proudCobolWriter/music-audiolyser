@@ -26,14 +26,15 @@
     ],
     "scripts": {
         "dev": "vite",
-        "build": "tsc -b && vite build",
+        "build": "cross-env NODE_ENV=production tsc -b && vite build",
         "check": "tsc --noEmit",
         "lint": "eslint .",
         "lint:staged": "lint-staged --config .lintstagedrc",
         "preview": "vite preview",
-        "pretty:check": "prettier . --check",
-        "pretty:write": "prettier . --write",
+        "prettify:check": "prettier . --check",
+        "prettify:write": "prettier . --write",
         "prepare": "cd ../.. && husky src/vite/.husky || true",
+        "collectstatic": "wsl bash -c \"source ../../.venv/bin/activate && pip list && python ../manage.py collectstatic --no-input --clear && touch ../static/.gitkeep\"",
         "test": "Echo \"Error: no test specified\" && exit 0"
     },
     "dependencies": {
@@ -53,6 +54,7 @@
         "@typescript-eslint/eslint-plugin": "^8.26.1",
         "@typescript-eslint/parser": "^8.26.1",
         "@vitejs/plugin-react-swc": "^3.8.0",
+        "cross-env": "^7.0.3",
         "eslint": "^9.22.0",
         "eslint-config-prettier": "^10.1.1",
         "eslint-import-resolver-typescript": "^3.9.1",
