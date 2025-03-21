@@ -20,6 +20,10 @@ export default tseslint.config(
         languageOptions: {
             parser: typescriptParser,
         },
+        linterOptions: {
+            reportUnusedDisableDirectives: "warn",
+            reportUnusedInlineConfigs: "warn",
+        },
         plugins: {
             import: importPlugin,
             prettier: prettier,
