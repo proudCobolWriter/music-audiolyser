@@ -2,7 +2,7 @@ from django.conf import settings
 from pathlib import Path
 import sys, os
 
-LOG_DIR = Path("..") / "logs"
+LOG_DIR = settings.BASE_DIR / ".." / "logs"
 DJANGO_LOG_LEVEL = "DEBUG" if settings.DEBUG else "INFO"
 
 os.makedirs(LOG_DIR, exist_ok=True) # makes sure a logs folder exists
