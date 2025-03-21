@@ -24,11 +24,17 @@ from django.views.generic.base import RedirectView
 
 from music_app.views import index as musicView
 
+from logging import getLogger
+
 app_name = "backend"
 urlpatterns = []
 
+logger = getLogger(app_name)
+logger.info(f"Backend is running in DEBUG={settings.DEBUG}")
+
 if settings.DEBUG == True:
     # Force the redirect to the better vite development server (that supports HMR as well)
+    logger.warning("Forced redirect to localhost")
     dev_server_url = f"{settings.DJANGO_VITE['default']['dev_server_protocol']}://{settings.DJANGO_VITE['default']['dev_server_host']}:{settings.DJANGO_VITE['default']['dev_server_port']}{settings.DJANGO_VITE['default']['static_url_prefix']}"
     urlpatterns += [re_path(r'^.*$', RedirectView.as_view(url=dev_server_url, permanent=False), name="index")]
 else:

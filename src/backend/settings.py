@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import os, sys
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,46 +28,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["*"] # don't use "*" for production, but rather the server url (ex: www.google.fr)
 
-
-# Logging
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt' : "%d/%b/%Y %H:%M:%S"
-        },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
-        },
-    },
-    'handlers': {
-        "file": {
-            'level': 'DEBUG',
-            "class": "logging.handlers.TimedRotatingFileHandler",
-            "filename": "../logs/django_app.log",
-            "when": "midnight",
-            "backupCount": 30,
-            "formatter": "verbose"
-        },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'stream': sys.stdout,
-            'formatter': 'verbose'
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console', 'file'],
-            'propagate': True,
-            # 'level': 'DEBUG', spams the console essentially
-        }
-    }
-}
-
+from .logging import LOGGING
 
 # Application definition
 
@@ -84,7 +45,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 INSTALLED_APPS = [
-    'backend', # probably not needed or a bad practice
+    'backend',
     'music_app.apps.MusicAppConfig',
     'corsheaders',
     'django_vite',
@@ -177,7 +138,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static") # aka staticfiles
 
-print(f"DEBUG: Base directory is {BASE_DIR}")
+print(f"[DEBUG]: Base directory is {BASE_DIR}")
 
 STATICFILES_DIRS = [
   BASE_DIR / "vite" / "dist"
