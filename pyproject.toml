@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "music-audiolyser"
+version = "1.0.0"
+description = "Backend for a Vite react typescript application"
+requires-python = "==3.9.18"
+keywords = [
+    "python",
+    "django",
+    "backend",
+    "vite",
+    "react",
+    "spa",
+    "typescript",
+    "django-vite",
+]
+readme = { file = "README.md", content-type = "text/markdown" }
+license = "GPL-3.0-or-later"
+authors = []
+
+dependencies = [
+    "asgiref==3.8.1",
+    "Django==4.2.20",
+    "django-vite==3.1.0",
+    "essentia-tensorflow==2.1b6.dev1110",
+    "numpy==1.26.4",
+    "yt-dlp==2025.2.19",
+    "PyYAML==6.0.2",
+    "six==1.17.0",
+    "sqlparse==0.5.3",
+    "typing_extensions==4.12.2",
+    "whitenoise==6.9.0",
+    "django-cors-headers==4.7.0",
+]
+
+[project.optional-dependencies]
+linting = ["pylint"]
+formatting = ["black"]
+other = ["ipdb", "pip-tools"]
+
+[project.urls]
+Homepage = "https://github.com/proudCobolWriter/music-audiolyser"
+Repository = "https://github.com/proudCobolWriter/music-audiolyser.git"
+
+[project.scripts]
+"manage" = "scripts:django_manage"
+"run" = "scripts:run_django"
+"col" = "scripts:collect_static_django"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+mypkg = ["*"]
