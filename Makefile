@@ -7,7 +7,7 @@ install:
 	pip install --no-deps -e .
 
 install-dev:
-	python -m pip install -e .[linting,formatting,other]
+	pip install -e .[linting,formatting,other]
 
 reqs:
 	pip-compile \
