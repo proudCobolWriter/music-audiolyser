@@ -4,5 +4,15 @@
     "prettier.endOfLine": "lf",
     "python.terminal.activateEnvInCurrentTerminal": true,
     "python.defaultInterpreterPath": "/.venv/bin/python",
-    "terminal.integrated.enablePersistentSessions": true
+    "terminal.integrated.enablePersistentSessions": true,
+    "[javascript][javascriptreact][typescript][typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "diffEditor.ignoreTrimWhitespace": true,
+        "editor.defaultColorDecorators": "auto",
+        "editor.formatOnType": true,
+        "editor.wordBasedSuggestions": "off"
+    }
 }
