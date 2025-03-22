@@ -63,5 +63,5 @@ target-version = ["py39"]
 [tool.pylint.format]
 max-line-length = 120
 
-[tool.pylint.MASTER]
-ignore-paths = "^./.venv/.*$"
+[tool.pylint]
+ignore = ["vite", ".venv"]

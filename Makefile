@@ -1,6 +1,21 @@
+BGREEN:=\033[1;32m
+BRED:=\033[1;31m
+NC:=\033[0m
+
 print: $(wildcard *)
-	echo "Printing all files information"
+	echo "Printing all files' information"
 	ls -la  $?
+
+cleancode:
+	@printf "$(BRED)Formatting the codebase using Black:$(NC)\n"
+	black .
+
+checkcode:
+	@printf "$(BRED)Checking the codebase's formatting using Black:$(NC)\n"
+	black . --check
+	@sleep 1.5
+	@printf "$(BGREEN)Now linting the code using Pylint:$(NC)\n"
+	-pylint . || true
 
 install:
 	pip install -r requirements.txt
