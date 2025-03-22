@@ -55,3 +55,10 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 mypkg = ["*"]
+
+[tool.black]
+line-length = 120
+target-version = ["py39"]
+
+[tool.pylint.format]
+max-line-length = 120
