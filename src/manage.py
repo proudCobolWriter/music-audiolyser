@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# theorically could be deleted since pyproject.toml includes scripts that do the same thing
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
