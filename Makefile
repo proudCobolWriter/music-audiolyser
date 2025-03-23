@@ -21,6 +21,11 @@ install:
 	pip install -r requirements.txt
 	pip install --no-deps -e .
 
+install-docker:
+	# shrinks image size by removing cache 
+	pip install -r requirements.txt --no-cache-dir
+	pip install --no-deps -e .
+
 install-dev:
 	pip install -e .[linting,formatting,other]
 
