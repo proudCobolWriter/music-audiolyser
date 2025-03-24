@@ -18,7 +18,6 @@ def moodPred(audio):
 
 
 
-    averagePred = np.mean(predictions, axis = 0)
-    topMoods = averagePred.argsort()[::-1][:1]
-    return moods[topMoods.item()]
+    averagePred = np.mean(predictions, axis = 0).argmax()
+    return moods[averagePred]
 

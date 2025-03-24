@@ -13,13 +13,15 @@ with open("songReq.txt", "r") as f:
 for url in file:
     try:
         directory, artistName, title = videoDownload(url)
-        audio = es.MonoLoader(filename=directory, sampleRate= 44100, resampleQuality=4)()
+        audio = es.MonoLoader(filename=directory, sampleRate= 16000, resampleQuality=4)()
     except:
         continue
 
     genre  = genrePred(audio)
-    bpm, danceability, key, scale = pred(audio)
     mood = moodPred(audio)
+    audio = es.MonoLoader(filename=directory, sampleRate= 44100, resampleQuality=4)()
+    bpm, danceability, key, scale = pred(audio)
+    
 
     with open("chart.csv", "a", newline='') as c: 
             chart = csv.DictWriter(c, FIELDNAMES)

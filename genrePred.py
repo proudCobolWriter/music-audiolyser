@@ -13,15 +13,13 @@ def genrePred(audio):
     embeddings = embeddingModel(audio)
 
     if not hasattr(genrePred, 'model'):
-        genrePred.model = TensorflowPredict2D(graphFilename="data/genre_discogs400-discogs-effnet-1.pb", input="serving_default_model_Placeholder", output="PartitionedCall:0")
+        genrePred.model = TensorflowPredict2D(graphFilename="data/mtg_jamendo_genre-discogs-effnet-1.pb")
     model = genrePred.model
 
     predictions = model(embeddings)
-    
 
-    averagePred = np.mean(predictions, axis = 0)
-    topGenres = averagePred.argsort()[::-1][:1]
-    return genres[topGenres.item()]
+    averagePred = np.mean(predictions, axis = 0).argmax()
+    return genres[averagePred]
 
 
 
