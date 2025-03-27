@@ -166,7 +166,7 @@ whitenoise==6.9.0 \
     --hash=sha256:8c4a7c9d384694990c26f3047e118c691557481d624f069b7f7752a2f735d609 \
     --hash=sha256:c8a489049b7ee9889617bb4c274a153f3d979e8f51d2efd0f5b403caf41c57df
     # via music-audiolyser (pyproject.toml)
-yt-dlp==2025.2.19 \
-    --hash=sha256:3ed218eaeece55e9d715afd41abc450dc406ee63bf79355169dfde312d38fdb8 \
-    --hash=sha256:f33ca76df2e4db31880f2fe408d44f5058d9f135015b13e50610dfbe78245bea
+yt-dlp==2025.3.26 \
+    --hash=sha256:47456172bc7a88dba1c519fe42d80087a8f530c03d2cbf24e060a41f8f1f6ecb \
+    --hash=sha256:5e3c6464bf7ab61739a7238fe42c922515795350533eff1335eab78b4f624375
     # via music-audiolyser (pyproject.toml)

@@ -14,13 +14,17 @@ colorlog.setFormatter(cf())
 
 logger.addHandler(colorlog)
 
+# uncomment to check if logger works properly in console stream
+# for level in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
+#     logger.__getattribute__(level.lower())(f"Printing test string with {level = }")
+
 # Constants
 
 HOST = "127.0.0.1"  # should be localhost if the tensorflow worker is on the same server as the websites backend
 PORT = 65432  # in which case, the socket shouldn't be available to other IPv4 interfaces than localhost
 RECEIVE_BUFFER = 1024  # bits
 
-# Static library exports
+# Socket manager class export
 
 
 class TFWorkerSocket:
@@ -46,6 +50,7 @@ class TFWorkerSocket:
 
         try:
             self.Socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # AF_INET -> IPv4, SOCK_STREAM -> ICP
+            self.Socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.Socket.bind((self.HOST, self.PORT))
             self.Socket.listen()
             logger.info(f"The socket is now listening on {self.HOST}:{self.PORT}")
@@ -68,14 +73,22 @@ class TFWorkerSocket:
                     )
 
                 data = self.Connection.recv(1024)
+                logger.debug(f"Received packet: {data = }")
 
-                logger.info(f"Received {data} {self.ClientAddress}")
                 if not data:  # or equals to ''
-                    logger.info("Socket connection has been broken")
-                    break
-                self.Connection.sendall(data)
+                    logger.info("Socket connection has been severed, awaiting new connection")
+                    # break
+                    self.Connection, self.ClientAddress = None, None
+                    continue
 
-                logger.info(f"Sent all {data} {self.ClientAddress}")
+                decodedBuffer = data.decode()
+
+                if decodedBuffer == "STOP":
+                    logger.info('Socket connection is closing gracefully after a "STOP" request')
+                    break
+
+                self.Connection.sendall(data)
+                logger.debug(f"Sent data: {data}")
             except socket.error:
                 logger.error(
                     "Encountered an error while handling client connections (a RST request has likely been sent by the peer to disconnect)",
@@ -86,10 +99,14 @@ class TFWorkerSocket:
         if self.Socket is None:
             return
 
+        self.Connection.shutdown(socket.SHUT_RDWR)
+        self.Socket.shutdown(socket.SHUT_RDWR)
         self.Connection.close()
         self.Socket.close()
+
         self.Socket = None
         self.Connection, self.ClientAddress = None, None
+
         self.Running = False
 
         logger.info("The socket is now closed")

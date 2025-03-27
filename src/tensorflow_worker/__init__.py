@@ -1,1 +1,1 @@
-from tfsocket import *
+from tensorflow_worker.tfsocket import *

@@ -27,7 +27,7 @@ dependencies = [
     "django-vite==3.1.0",
     "essentia-tensorflow==2.1b6.dev1110",
     "numpy==1.26.4",
-    "yt-dlp==2025.2.19",
+    "yt-dlp==2025.3.26",
     "PyYAML==6.0.2",
     "six==1.17.0",
     "sqlparse==0.5.3",
