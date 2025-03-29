@@ -1,5 +1,6 @@
 import socket
 import logging
+import asyncio
 
 from tensorflow_worker.logging.custom import CustomFormatter as cf
 
@@ -43,6 +44,9 @@ class TFWorkerSocket:
         fields = ", ".join(f"{i!r}={v!r}" for (i, v) in zip(self.__dict__.keys(), self.__dict__.values()))
         return f"{self.__class__.__name__}({fields})"
 
+    def __str__(self) -> None:
+        return self.__repr__()
+
     def createSocket(self) -> None:
         logger.info("Creating the socket")
         if self.Socket is not None:
@@ -52,7 +56,8 @@ class TFWorkerSocket:
             self.Socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # AF_INET -> IPv4, SOCK_STREAM -> ICP
             self.Socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.Socket.bind((self.HOST, self.PORT))
-            self.Socket.listen()
+            self.Socket.listen(1)  # allow only one connection from clients
+            self.Socket.setblocking(True)  # make socket operations yield
             logger.info(f"The socket is now listening on {self.HOST}:{self.PORT}")
         except socket.error:
             logger.error("Failed to setup the socket:", exc_info=True)
