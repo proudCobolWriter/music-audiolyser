@@ -7,6 +7,8 @@ import essentia.standard as es
 
 FIELDNAMES = ["Name", "Title", "Artist", "Genre", "BPM", "Danceability", "Key", "Scale", "Mood"]
 
+name = str(input("Name : \n"))
+
 with open("songReq.txt", "r") as f:
     file = f.readlines()
 
@@ -25,6 +27,6 @@ for url in file:
 
     with open("chart.csv", "a", newline='') as c: 
             chart = csv.DictWriter(c, FIELDNAMES)
-            chart.writerow({"Name" : "Anonymous", "Title" : title , "Artist" : artistName, "Genre" :genre,
+            chart.writerow({"Name" : name, "Title" : title , "Artist" : artistName, "Genre" :genre,
                             "BPM" :bpm, "Danceability" : danceability, "Key" : key, "Scale": scale, "Mood" : mood})
 
