@@ -1,0 +1,30 @@
+[project]
+name = "music-audiolyser"
+version = "0.1.0"
+description = "School project focused on analyzing song features to train models such as KNN, with the potential to explore additional models in the future. This project serves as a practical example of when and how machine learning models can be applied."
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+license = {text = "GPL-3.0-or-later"}
+readme = "README.md"
+requires-python = "3.9.18"
+dependencies = [
+    "customtkinter (>=5.2.2,<6.0.0)",
+    "essentia-tensorflow (==2.1b6.dev1110)",
+    "numpy (==1.26.4)",
+    "yt-dlp (==2025.3.26)",
+    "pandas (>=2.3.2,<3.0.0)",
+    "pillow (>=11.3.0,<12.0.0)",
+    "scikit-learn (==1.6.1)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+black = "^25.1.0"
+
+[tool.poetry]
+package-mode = false
