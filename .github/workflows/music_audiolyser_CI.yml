@@ -48,6 +48,8 @@ jobs:
       - name: Generate dynamic badge
         uses: Schneegans/dynamic-badges-action@v1.7.0
         with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: 09eefdec3fef2978a4590a5f82b84856
           label: Coverage
           message: ${{ steps.run_tests_with_coverage.outputs.coverage }}
           color: ${{ steps.run_tests_with_coverage.outputs.coverage_color }}

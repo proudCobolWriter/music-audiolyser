@@ -1,7 +1,7 @@
 # Music Audiolyser
 
 ![Python Version](https://img.shields.io/badge/python-3.9.18-blue)
-![Coverage](https://img.shields.io/endpoint?url=https://gist.github.com/proudCobolWriter/<GIST_ID>/raw/badge.json)
+![Coverage](https://img.shields.io/endpoint?url=https://gist.github.com/proudCobolWriter/09eefdec3fef2978a4590a5f82b84856/raw/badge.json)
 
 
 ## Description
