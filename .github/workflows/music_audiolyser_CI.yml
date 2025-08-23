@@ -12,24 +12,40 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.9.18
+
       - name: Install dependencies
         run: |
           pip install poetry
           poetry install --with dev
+
       - name: Lint
         run: poetry run flake8 .
+
       - name: Format check
         run: poetry run black --check .
+
       - name: Run tests with coverage
         id: run_tests_with_coverage
         run: |
           poetry run pytest --cov=core --cov-report xml
+          COVERAGE=$(grep -o 'line-rate="[^"]*"' coverage.xml | head -1 | cut -d '"' -f2)
+          COVERAGE_PERCENT=$(echo "$COVERAGE * 100" | bc | cut -d'.' -f1)
+          echo "coverage=${COVERAGE_PERCENT}%" >> $GITHUB_OUTPUT
+
+          if [ $COVERAGE_PERCENT -ge 80 ]; then
+            echo "coverage_color=green" >> $GITHUB_OUTPUT
+          elif [ $COVERAGE_PERCENT -ge 50 ]; then
+            echo "coverage_color=yellow" >> $GITHUB_OUTPUT
+          else
+            echo "coverage_color=red" >> $GITHUB_OUTPUT
+          fi
+
       - name: Generate dynamic badge
-        id: coverage_badge
         uses: Schneegans/dynamic-badges-action@v1.7.0
         with:
           label: Coverage
