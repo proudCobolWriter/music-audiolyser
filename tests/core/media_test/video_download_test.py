@@ -1,6 +1,6 @@
 import subprocess
 
-from core.media.video_download import video_download
+from music_audiolyser.core.media.video_download import video_download
 
 
 def fake_subprocess_run(command, capture_output=False, text=False, check=False):

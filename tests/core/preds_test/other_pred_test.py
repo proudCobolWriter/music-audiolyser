@@ -1,6 +1,6 @@
 import numpy as np
 
-from core.preds.other_pred import pred
+from music_audiolyser.core.preds.other_pred import pred
 
 
 class FakeRhythm:
@@ -20,12 +20,16 @@ class FakeKey:
 
 def test_pred(monkeypatch):
     monkeypatch.setattr(
-        "core.preds.other_pred.es.RhythmExtractor2013", lambda: FakeRhythm()
+        "music_audiolyser.core.preds.other_pred.es.RhythmExtractor2013",
+        lambda: FakeRhythm(),
     )
     monkeypatch.setattr(
-        "core.preds.other_pred.es.Danceability", lambda: FakeDanceability()
+        "music_audiolyser.core.preds.other_pred.es.Danceability",
+        lambda: FakeDanceability(),
     )
-    monkeypatch.setattr("core.preds.other_pred.es.KeyExtractor", lambda: FakeKey())
+    monkeypatch.setattr(
+        "music_audiolyser.core.preds.other_pred.es.KeyExtractor", lambda: FakeKey()
+    )
 
     fake_audio = np.zeros(100)
 

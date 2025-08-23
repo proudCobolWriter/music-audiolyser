@@ -5,6 +5,10 @@ description = "School project focused on analyzing song features to train models
 authors = [
     {name = "Your Name",email = "you@example.com"}
 ]
+packages = [
+  { include = "music_audiolyser", from = "src" }
+]
+
 license = {text = "GPL-3.0-or-later"}
 readme = "README.md"
 requires-python = "3.9.18"
@@ -32,7 +36,7 @@ flake8 = "6.1.0"
 pytest-cov = "^6.2.1"
 
 [tool.poetry]
-package-mode = false
+package-mode = true
 
 
 [tool.black]

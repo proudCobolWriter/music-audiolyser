@@ -1,6 +1,6 @@
 import sys
 
-from UI.UI import App
+from .UI.UI import App
 
 
 def run():
@@ -10,8 +10,8 @@ def run():
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "analyze":
-        from core import song_pipeline
+        from .core import song_pipeline
 
-        song_pipeline()
+        song_pipeline.song_pipeline()
     else:
         run()

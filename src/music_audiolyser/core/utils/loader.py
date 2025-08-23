@@ -2,7 +2,9 @@ import json
 import multiprocessing
 from pathlib import Path
 
-from .constants import ROOT_DIR
+ROOT_DIR = Path(__file__).resolve()
+while ROOT_DIR.name != "music-audiolyser":
+    ROOT_DIR = ROOT_DIR.parent
 
 DEFAULT_UI = {
     "theme": "dark",
@@ -55,7 +57,7 @@ CONFIG_DIR = ROOT_DIR / "data" / "config"
 CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def load_json(file_path: Path, default: dict):
+def load_json(file_path: Path, default: dict, root_dir: Path = None):
     data = default.copy()
     need_save = False
 
@@ -85,12 +87,21 @@ def load_json(file_path: Path, default: dict):
 
     else:
         print(f"[INFO] {file_path} loaded successfully.")
+
+    if root_dir:
+        for k, v in data.items():
+            if isinstance(v, str):
+                data[k] = Path(root_dir / v) if not Path(v).is_absolute() else Path(v)
+        print(
+            f"[INFO] Paths in {file_path} converted to Path objects using ROOT_DIR={root_dir}"
+        )
+
     return data
 
 
 UI_CONFIG = load_json(CONFIG_DIR / "ui.json", DEFAULT_UI)
 MODEL_CONFIG = load_json(CONFIG_DIR / "model.json", DEFAULT_MODEL)
-PATHS_CONFIG = load_json(CONFIG_DIR / "paths.json", DEFAULT_PATHS)
+PATHS_CONFIG = load_json(CONFIG_DIR / "paths.json", DEFAULT_PATHS, ROOT_DIR)
 
 
 def get_available_cores(default=1):

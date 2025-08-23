@@ -1,8 +1,7 @@
 import customtkinter as ctk
 from PIL import Image
 
-from core.utils.loader import PATHS_CONFIG, UI_CONFIG
-
+from ..core.utils.loader import PATHS_CONFIG, UI_CONFIG
 from . import widgets
 
 

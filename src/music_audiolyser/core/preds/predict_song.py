@@ -1,10 +1,10 @@
 import essentia.standard as es
 import pandas as pd
 
-from core.media.video_download import video_download
-from core.preds.genre_pred import genre_pred
-from core.preds.mood_pred import mood_pred
-from core.preds.other_pred import pred
+from ...core.media.video_download import video_download
+from ...core.preds.genre_pred import genre_pred
+from ...core.preds.mood_pred import mood_pred
+from ...core.preds.other_pred import pred
 
 
 def predict_song():

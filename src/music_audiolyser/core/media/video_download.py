@@ -1,7 +1,8 @@
 import re
 import subprocess
 
-from index import SONGS_DIR, YT_DL_OUTPUT, YT_DLP_AUDIO_FORMAT
+from music_audiolyser.core.utils.constants import YT_DL_OUTPUT, YT_DLP_AUDIO_FORMAT
+from music_audiolyser.core.utils.loader import PATHS_CONFIG
 
 
 def video_download(URL):
@@ -17,7 +18,7 @@ def video_download(URL):
         video_filename = result.stdout.strip()
         print("vidéo " + video_filename)
         video_filename = re.sub(r"\.[^.]+$", f".{YT_DLP_AUDIO_FORMAT}", video_filename)
-        if (SONGS_DIR / video_filename).exists():
+        if (PATHS_CONFIG["downloads"] / video_filename).exists():
             is_downloaded = True
 
         command_download = [
@@ -37,7 +38,7 @@ def video_download(URL):
             subprocess.run(command_download, check=True)
             print("Download complete.")
 
-        file_path = SONGS_DIR / video_filename
+        file_path = PATHS_CONFIG["downloads"] / video_filename
         names = re.match(r"^(.*?)\s*[-|–|—｜⧸]\s*(.*?)(\.\w{2,4})?$", video_filename)
         if names:
             artist_name = names.group(1)

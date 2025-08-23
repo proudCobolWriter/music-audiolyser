@@ -1,11 +1,11 @@
 import pickle
 
 import pandas as pd
-from sklearn.model_selection import train_test_split
-
 from core.preds.predict_song import predict_song
 from core.utils.loader import PATHS_CONFIG
-from index import FEATURES
+from sklearn.model_selection import train_test_split
+
+from music_audiolyser.core.utils.constants import FEATURES
 
 df = pd.read_csv(PATHS_CONFIG["chart"])
 X = df[FEATURES]

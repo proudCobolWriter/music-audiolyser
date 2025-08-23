@@ -3,7 +3,7 @@ import multiprocessing
 import customtkinter as ctk
 from PIL import Image
 
-from core.utils.loader import PATHS_CONFIG
+from ..core.utils.loader import PATHS_CONFIG
 
 
 class PopUp(ctk.CTkToplevel):
@@ -144,12 +144,12 @@ class ProgressPopUp(ctk.CTkToplevel):
 
 
 def worker_main(name, queue):
-    import core.song_pipeline as song_pipeline
+    from music_audiolyser.core.song_pipeline import song_pipeline
 
     def progress_callback(song_name, advance):
         queue.put(("progress", song_name, advance))
 
-    song_pipeline.main(name, progress_callback=progress_callback)
+    song_pipeline(name, progress_callback=progress_callback)
     queue.put(("done",))
 
 

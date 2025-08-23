@@ -2,15 +2,16 @@ import csv
 
 import essentia.standard as es
 
-from core.media.video_download import video_download
-from core.preds.genre_pred import genre_pred
-from core.preds.mood_pred import mood_pred
-from core.preds.other_pred import pred
-from core.utils.loader import PATHS_CONFIG
-from index import FIELDNAMES
+from music_audiolyser.core.utils.constants import FIELDNAMES
+
+from ..core.media.video_download import video_download
+from ..core.preds.genre_pred import genre_pred
+from ..core.preds.mood_pred import mood_pred
+from ..core.preds.other_pred import pred
+from ..core.utils.loader import PATHS_CONFIG
 
 
-def main(name, progress_callback=None):
+def song_pipeline(name="Unknown", progress_callback=None):
     with open(PATHS_CONFIG["song_requests"], "r") as f:
         file = f.readlines()
 

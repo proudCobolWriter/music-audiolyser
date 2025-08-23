@@ -29,6 +29,10 @@ jobs:
       - name: Format check
         run: poetry run black --check .
 
+      - name: Run Pytest
+        run: poetry run pytest tests
+
+    ignored_section: |
       - name: Run tests with coverage
         id: run_tests_with_coverage
         run: |
@@ -44,7 +48,7 @@ jobs:
           else
             echo "coverage_color=red" >> $GITHUB_OUTPUT
           fi
-
+    
       - name: Generate dynamic badge
         uses: Schneegans/dynamic-badges-action@v1.7.0
         with:

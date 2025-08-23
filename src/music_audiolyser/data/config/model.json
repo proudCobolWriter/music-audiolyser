@@ -1,0 +1,20 @@
+{
+    "default_model": "knn",
+    "available_models": [
+        "knn",
+        "random_forest",
+        "neural_net"
+    ],
+    "use_gpu": "False",
+    "knn": {
+        "n_neighbors": 5,
+        "weights": {
+            "value": "distance",
+            "options": [
+                "distance",
+                "uniform"
+            ],
+            "description": "Method to calculate the neighbors' contribution : 'uniform' = simple average, 'distance' = weighted average based on proximity"
+        }
+    }
+}

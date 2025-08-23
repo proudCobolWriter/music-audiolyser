@@ -5,8 +5,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from core.utils.loader import MODEL_CONFIG, NUM_CORE, PATHS_CONFIG
-from index import (
+from music_audiolyser.core.utils.constants import (
     ALL_GENRES,
     ALL_KEYS,
     ALL_MOODS,
@@ -14,6 +13,7 @@ from index import (
     CAT_FEATURES,
     NUM_FEATURES,
 )
+from music_audiolyser.core.utils.loader import MODEL_CONFIG, NUM_CORE, PATHS_CONFIG
 
 
 def safe_knn(n_neighbors, weights, num_core):

@@ -1,8 +1,9 @@
 import numpy as np
 from essentia.standard import TensorflowPredict2D, TensorflowPredictEffnetDiscogs
 
-from core.utils.loader import PATHS_CONFIG
-from index import ALL_MOODS
+from music_audiolyser.core.utils.constants import ALL_MOODS
+
+from ...core.utils.loader import PATHS_CONFIG
 
 
 def mood_pred(audio):
