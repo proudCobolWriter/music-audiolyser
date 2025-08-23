@@ -17,8 +17,7 @@ This project also includes a basic UI to upload songs (currently only "Upload so
 -Use KNN models on to predict the hypothetical uploader
 -Simple GUI for uploading songs
 
-```bash
-```
+
 ## Installation
 
 1. Clone the repository:
@@ -46,7 +45,7 @@ Run the main application:
 poetry run python main.py
 ```
 
-Or without Poetry
+Or without Poetry:
 
 ```bash
 python main.py
