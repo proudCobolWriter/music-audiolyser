@@ -1,13 +1,13 @@
-from core.preds.other_pred import pred
+import essentia.standard as es
+import pandas as pd
+
+from core.media.video_download import video_download
 from core.preds.genre_pred import genre_pred
 from core.preds.mood_pred import mood_pred
-import pandas as pd
-from core.media.video_download import video_download
-import essentia.standard as es
+from core.preds.other_pred import pred
 
 
 def predict_song():
-
     song_request = None
 
     url = str(input("URL de la chanson YouTube : \n")).strip()

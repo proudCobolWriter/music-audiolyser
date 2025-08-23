@@ -2,7 +2,6 @@ import essentia.standard as es
 
 
 def pred(audio):
-
     rhythm_extractor = es.RhythmExtractor2013()
     danceability_alg = es.Danceability()
     key_alg = es.KeyExtractor()

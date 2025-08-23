@@ -1,11 +1,11 @@
-from essentia.standard import TensorflowPredictEffnetDiscogs, TensorflowPredict2D
 import numpy as np
+from essentia.standard import TensorflowPredict2D, TensorflowPredictEffnetDiscogs
+
 from core.utils.loader import PATHS_CONFIG
 from index import ALL_GENRES
 
 
 def genre_pred(audio):
-
     if not hasattr(genre_pred, "embedding_model"):
         genre_pred.embedding_model = TensorflowPredictEffnetDiscogs(
             graphFilename=PATHS_CONFIG["models"]["pretrained"]["embedding_model"],

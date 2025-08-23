@@ -1,8 +1,8 @@
 import json
-from pathlib import Path
 import multiprocessing
-from .constants import ROOT_DIR
+from pathlib import Path
 
+from .constants import ROOT_DIR
 
 DEFAULT_UI = {
     "theme": "dark",
@@ -20,7 +20,8 @@ DEFAULT_MODEL = {
         "weights": {
             "value": "distance",
             "options": ["distance", "uniform"],
-            "description": "Method to calculate the neighbors' contribution : 'uniform' = simple average, 'distance' = weighted average based on proximity",
+            "description": "Method to calculate the neighbors' contribution : "
+            "'uniform' = simple average, 'distance' = weighted average based on proximity",
         },
     },
 }
@@ -55,7 +56,6 @@ CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def load_json(file_path: Path, default: dict):
-
     data = default.copy()
     need_save = False
 
@@ -101,7 +101,7 @@ def get_available_cores(default=1):
         )
         return allocated_cores
 
-    except:
+    except Exception:
         print(
             "[WARN] Unable to detect multiple cores. Defaulting to 1 core for model execution."
         )

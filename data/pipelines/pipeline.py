@@ -1,21 +1,22 @@
 import pickle
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
 from sklearn.compose import ColumnTransformer
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
+from core.utils.loader import MODEL_CONFIG, NUM_CORE, PATHS_CONFIG
 from index import (
-    ALL_MOODS,
     ALL_GENRES,
     ALL_KEYS,
+    ALL_MOODS,
     ALL_SCALES,
     CAT_FEATURES,
     NUM_FEATURES,
 )
-from core.utils.loader import PATHS_CONFIG, MODEL_CONFIG, NUM_CORE
 
 
 def safe_knn(n_neighbors, weights, num_core):
-
     try:
         knn = KNeighborsClassifier(
             n_neighbors=n_neighbors, weights=weights, n_jobs=num_core

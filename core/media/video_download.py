@@ -1,10 +1,10 @@
-import subprocess
 import re
-from index import YT_DL_OUTPUT, YT_DLP_AUDIO_FORMAT, SONGS_DIR
+import subprocess
+
+from index import SONGS_DIR, YT_DL_OUTPUT, YT_DLP_AUDIO_FORMAT
 
 
 def video_download(URL):
-
     is_downloaded = False
 
     command_get_filename = ["yt-dlp", "--get-filename", "-o", "%(title)s.%(ext)s", URL]

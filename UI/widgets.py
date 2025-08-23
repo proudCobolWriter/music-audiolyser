@@ -1,6 +1,8 @@
-import customtkinter as ctk
 import multiprocessing
+
+import customtkinter as ctk
 from PIL import Image
+
 from core.utils.loader import PATHS_CONFIG
 
 
@@ -105,7 +107,6 @@ class ProgressPopUp(ctk.CTkToplevel):
         self.after(500, self.animate_dots)
 
     def update_progress(self, song_name=None, advance=True):
-
         self.last_song_name = song_name
 
         if isinstance(song_name, str):
@@ -115,7 +116,7 @@ class ProgressPopUp(ctk.CTkToplevel):
                 text="An error occured during the process of this song."
             )
         else:
-            self.current_song_name.configure(text=f"Downloading next song")
+            self.current_song_name.configure(text="Downloading next song")
         if advance:
             self.current += 1
             target_fraction = self.current / self.total
@@ -143,7 +144,6 @@ class ProgressPopUp(ctk.CTkToplevel):
 
 
 def worker_main(name, queue):
-
     import core.song_pipeline as song_pipeline
 
     def progress_callback(song_name, advance):

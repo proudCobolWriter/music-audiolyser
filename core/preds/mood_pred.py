@@ -1,11 +1,11 @@
-from essentia.standard import TensorflowPredictEffnetDiscogs, TensorflowPredict2D
 import numpy as np
+from essentia.standard import TensorflowPredict2D, TensorflowPredictEffnetDiscogs
+
 from core.utils.loader import PATHS_CONFIG
 from index import ALL_MOODS
 
 
 def mood_pred(audio):
-
     if not hasattr(mood_pred, "embedding_model"):
         mood_pred.embedding_model = TensorflowPredictEffnetDiscogs(
             graphFilename=PATHS_CONFIG["models"]["pretrained"]["embedding_model"],

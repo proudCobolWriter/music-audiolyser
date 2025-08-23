@@ -1,11 +1,13 @@
-from core.preds.other_pred import pred
+import csv
+
+import essentia.standard as es
+
+from core.media.video_download import video_download
 from core.preds.genre_pred import genre_pred
 from core.preds.mood_pred import mood_pred
-from core.media.video_download import video_download
-from index import FIELDNAMES
+from core.preds.other_pred import pred
 from core.utils.loader import PATHS_CONFIG
-import csv
-import essentia.standard as es
+from index import FIELDNAMES
 
 
 def main(name, progress_callback=None):
@@ -18,7 +20,7 @@ def main(name, progress_callback=None):
             audio = es.MonoLoader(
                 filename=directory, sampleRate=16000, resampleQuality=4
             )()
-        except:
+        except Exception:
             if progress_callback:
                 progress_callback(song_name=1, advance=True)
             continue

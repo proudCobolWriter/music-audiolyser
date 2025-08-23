@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from core.utils.constants import ROOT_DIR
 from core.utils.loader import PATHS_CONFIG
 from data.labels.genres import genres
