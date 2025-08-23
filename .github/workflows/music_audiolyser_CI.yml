@@ -2,9 +2,9 @@ name: Music Audiolyser CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ python-program ]
   pull_request:
-    branches: [ main ]
+    branches: [ python-program ]
 
 jobs:
   build:
