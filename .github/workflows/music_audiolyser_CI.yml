@@ -32,28 +32,4 @@ jobs:
       - name: Run Pytest
         run: poetry run pytest tests
 
-    ignored_section: |
-      - name: Run tests with coverage
-        id: run_tests_with_coverage
-        run: |
-          poetry run pytest --cov=core --cov-report xml
-          COVERAGE=$(grep -o 'line-rate="[^"]*"' coverage.xml | head -1 | cut -d '"' -f2)
-          COVERAGE_PERCENT=$(echo "$COVERAGE * 100" | bc | cut -d'.' -f1)
-          echo "coverage=${COVERAGE_PERCENT}%" >> $GITHUB_OUTPUT
 
-          if [ $COVERAGE_PERCENT -ge 80 ]; then
-            echo "coverage_color=green" >> $GITHUB_OUTPUT
-          elif [ $COVERAGE_PERCENT -ge 50 ]; then
-            echo "coverage_color=yellow" >> $GITHUB_OUTPUT
-          else
-            echo "coverage_color=red" >> $GITHUB_OUTPUT
-          fi
-    
-      - name: Generate dynamic badge
-        uses: Schneegans/dynamic-badges-action@v1.7.0
-        with:
-          auth: ${{ secrets.GIST_SECRET }}
-          gistID: 09eefdec3fef2978a4590a5f82b84856
-          label: Coverage
-          message: ${{ steps.run_tests_with_coverage.outputs.coverage }}
-          color: ${{ steps.run_tests_with_coverage.outputs.coverage_color }}
