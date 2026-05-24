@@ -1,39 +1,72 @@
 import essentia.standard as es
-import pandas as pd
 
 from ...core.media.video_download import video_download
 from ...core.preds.genre_pred import genre_pred
 from ...core.preds.mood_pred import mood_pred
 from ...core.preds.other_pred import pred
+from ...core.models.knn import run_knn
 
 
-def predict_song():
-    song_request = None
-
-    url = str(input("URL de la chanson YouTube : \n")).strip()
-
+def predict_song(url, progress_callback=None):
     try:
-        directory, _, _ = video_download(url)
+        if progress_callback:
+            progress_callback(song_name="Downloading", advance=False)
+
+        result = video_download(url)
+
+        if result is None:
+            raise ValueError(f"video_download failed for url: {url}")
+
+        directory, _, _ = result
+
+        if progress_callback:
+            progress_callback(song_name="Loading audio", advance=False)
+
         audio = es.MonoLoader(filename=directory, sampleRate=16000, resampleQuality=4)()
 
+        if progress_callback:
+            progress_callback(song_name="Predicting genre", advance=False)
+
         genre = genre_pred(audio)
+
+        if progress_callback:
+            progress_callback(song_name="Predicting mood", advance=False)
+
         mood = mood_pred(audio)
+
+        if progress_callback:
+            progress_callback(song_name="Reloading audio", advance=False)
+
         audio = es.MonoLoader(filename=directory, sampleRate=44100, resampleQuality=4)()
+
+        if progress_callback:
+            progress_callback(song_name="Extracting features", advance=False)
+
         bpm, danceability, key, scale = pred(audio)
 
-        song_request = pd.DataFrame(
-            [
-                {
-                    "Genre": genre,
-                    "BPM": bpm,
-                    "Danceability": danceability,
-                    "Key": key,
-                    "Scale": scale,
-                    "Mood": mood,
-                }
-            ]
-        )
-        return song_request
+        result = {
+            "Genre": genre,
+            "BPM": bpm,
+            "Danceability": danceability,
+            "Key": key,
+            "Scale": scale,
+            "Mood": mood,
+        }
+
+        if progress_callback:
+            progress_callback(song_name="Running KNN", advance=True)
+        
+        result = run_knn(result)
+
+        if progress_callback:
+            progress_callback(song_name="Done", advance=True)
+
+
+        return result[0]
+
+        
 
     except Exception as e:
-        print("Erreur lors du traitement :", e)
+        if progress_callback:
+            progress_callback(song_name=1, advance=False)  
+        print("Error while processing :", e)

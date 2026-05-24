@@ -6,6 +6,7 @@ from PIL import Image
 from ..core.utils.loader import PATHS_CONFIG
 
 
+
 class PopUp(ctk.CTkToplevel):
     def __init__(self, master=None, on_submit=None, **kwargs):
         super().__init__(master, **kwargs)
@@ -51,6 +52,7 @@ class ProgressPopUp(ctk.CTkToplevel):
         self.current_fraction = 0
         self.queue = queue
         self.last_song_name = None
+        self.result = None
 
         gear_frame = ctk.CTkFrame(self, width=200, height=150, fg_color="transparent")
         gear_frame.pack(side="right", fill="y", padx=10)
@@ -85,11 +87,19 @@ class ProgressPopUp(ctk.CTkToplevel):
                 if msg[0] == "progress":
                     song_name, advance = msg[1], msg[2]
                     self.update_progress(song_name=song_name, advance=advance)
+
+                elif msg[0] == "result":
+                    self.result = msg[1]
+                    if not hasattr(self, "popup") or not self.popup.winfo_exists():
+                        popup = PredictPopUp(self, self.result)
+                    else:
+                        self.popup.focus()
                 elif msg[0] == "done":
                     self.progress.set(1.0)
                     self.label.configure(text="100%")
                     self.current_song_name.configure(text="Done!")
-                    self.after(1500, self.destroy)
+                    self.after(1500, self.withdraw)
+
         except Exception as e:
             print("Queue error:", e)
         self.after(100, self.check_queue)
@@ -153,6 +163,59 @@ def worker_main(name, queue):
     queue.put(("done",))
 
 
+def worker_predict(url, queue):
+    from ..core.preds.predict_song import predict_song
+
+    def progress_callback(song_name, advance):
+        queue.put(("progress", song_name, advance))
+
+    result = predict_song(url, progress_callback = progress_callback)
+    queue.put(("result",result))
+    queue.put(("done",))
+
+
+class PredictPopUp(ctk.CTkToplevel):
+    def __init__(self, master, listener, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+
+        self.geometry("420x220")
+        self.title("Prediction result")
+
+        self.resizable(False, False)
+
+        self.container = ctk.CTkFrame(self, corner_radius=15)
+        self.container.pack(fill="both", expand=True, padx=15, pady=15)
+
+
+        self.title_label = ctk.CTkLabel(
+            self.container,
+            text="Best match found",
+            font=("Arial", 20, "bold")
+        )
+        self.title_label.pack(pady=(15, 10))
+
+        self.subtitle = ctk.CTkLabel(
+            self.container,
+            text="This song best matches the music taste of:",
+            font=("Arial", 14)
+        )
+        self.subtitle.pack(pady=(0, 10))
+
+        self.listener_label = ctk.CTkLabel(
+            self.container,
+            text=listener,
+            font=("Arial", 22, "bold"),
+            text_color="#4cc9f0"
+        )
+        self.listener_label.pack(pady=(5, 15))
+        self.footer = ctk.CTkLabel(
+            self.container,
+            text="Model: KNN recommendation system",
+            font=("Arial", 10),
+            text_color="gray"
+        )
+        self.footer.pack(pady=(0, 10))
+
 class SongDump(ctk.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -205,3 +268,36 @@ class SongPredict(ctk.CTkToplevel):
 
         self.label = ctk.CTkLabel(self, text="Predict the ideal listener")
         self.label.pack(padx=20, pady=20)
+        self.hint = ctk.CTkLabel(self, text="Enter song's URL :")
+        self.hint.pack(padx=20, pady=20)
+        self.textbox = ctk.CTkTextbox(self, width=400, height=30)
+        self.textbox.pack(padx=20,pady=20)
+        self.dump_button = ctk.CTkButton(
+            self,
+            width=400,
+            height=50,
+            text="Upload",
+            command=lambda: self.dump_song(self.textbox),
+        )
+        self.dump_button.pack(pady=30, padx=10)
+        self.progress_pop_up_window = None
+
+
+    def dump_song(self,textbox):
+        content = textbox.get("1.0", "end-1c")
+        if content == "":
+            return
+        if self.progress_pop_up_window is None or not self.progress_pop_up_window.winfo_exists():
+            self.after_pop_up(content)
+
+    def after_pop_up(self, url: str):
+
+        queue = multiprocessing.Queue()
+        self.progress_pop_up_window = ProgressPopUp(self, 1, queue)
+
+        process = multiprocessing.Process(target=worker_predict, args=(url, queue))
+        process.start()
+
+
+            
+        

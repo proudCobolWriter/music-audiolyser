@@ -1,31 +1,21 @@
 import pickle
-
 import pandas as pd
-from core.preds.predict_song import predict_song
-from core.utils.loader import PATHS_CONFIG
-from sklearn.model_selection import train_test_split
 
-from music_audiolyser.core.utils.constants import FEATURES
-
-df = pd.read_csv(PATHS_CONFIG["chart"])
-X = df[FEATURES]
-Y = df["Name"]
+from music_audiolyser.core.utils.constants import CAT_FEATURES, NUM_FEATURES
+from music_audiolyser.core.utils.loader import PATHS_CONFIG
 
 
-with open(PATHS_CONFIG["models"]["trained"]["knn"], "rb") as f:
-    pipeline = pickle.load(f)
+def run_knn(song_request: dict):
+
+    with open(PATHS_CONFIG["models"]["trained"]["knn"], "rb") as f:
+        pipeline = pickle.load(f)
+
+    song_request = pd.DataFrame([song_request])
 
 
-X_train, x_test, Y_train, y_test = train_test_split(
-    X, Y, test_size=0.2, random_state=42
-)
-pipeline.fit(X_train, Y_train)
+    song_request = song_request[CAT_FEATURES + NUM_FEATURES]
 
 
-song_request = predict_song()
+    predicted_name = pipeline.predict(song_request)
 
-predicted_name = pipeline.predict(song_request)
-
-
-print("Score du KNN :", pipeline.score(x_test, y_test))
-print(f"Cette chanson correspond le plus aux gouts de : {predicted_name[0]}")
+    return predicted_name

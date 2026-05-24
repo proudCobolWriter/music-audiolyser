@@ -1,4 +1,5 @@
 import pickle
+import pandas as pd
 
 from sklearn.compose import ColumnTransformer
 from sklearn.neighbors import KNeighborsClassifier
@@ -16,19 +17,19 @@ from music_audiolyser.core.utils.constants import (
 from music_audiolyser.core.utils.loader import MODEL_CONFIG, NUM_CORE, PATHS_CONFIG
 
 
-def safe_knn(n_neighbors, weights, num_core):
+
+def create_knn(n_neighbors, weights, num_core):
     try:
-        knn = KNeighborsClassifier(
-            n_neighbors=n_neighbors, weights=weights, n_jobs=num_core
-        )
-        _ = knn.fit([[0], [1]], [0, 1])
-        print(f"[INFO] KNN created successfully with n_jobs={NUM_CORE}")
-        return knn
-    except Exception as e:
-        print(f"[WARN] Multithreading not supported: {e}")
-        print("[INFO] Falling back to single-thread mode")
         return KNeighborsClassifier(
-            n_neighbors=n_neighbors, weights=weights, n_jobs=None
+            n_neighbors=n_neighbors,
+            weights=weights,
+            n_jobs=num_core,
+        )
+    except Exception:
+        print("[WARN] Multithreading not supported, fallback to single thread")
+        return KNeighborsClassifier(
+            n_neighbors=n_neighbors,
+            weights=weights,
         )
 
 
@@ -51,7 +52,7 @@ pipeline = Pipeline(
         ("pre_processor", pre_processor),
         (
             "classifier",
-            safe_knn(
+            create_knn(
                 n_neighbors=MODEL_CONFIG["knn"]["n_neighbors"],
                 weights=MODEL_CONFIG["knn"]["weights"]["value"],
                 num_core=NUM_CORE,
@@ -61,7 +62,16 @@ pipeline = Pipeline(
 )
 
 
+df = pd.read_csv(PATHS_CONFIG["chart"])
+
+X = df[CAT_FEATURES + NUM_FEATURES]
+Y = df["Name"]
+
+pipeline.fit(X, Y)
+
 with open(PATHS_CONFIG["models"]["trained"]["knn"], "wb") as f:
     pickle.dump(pipeline, f)
 
-print("[INFO] KNN pipeline created and saved successfully.")
+print("[INFO] KNN trained and saved successfully.")
+
+
