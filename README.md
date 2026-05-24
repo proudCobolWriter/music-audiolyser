@@ -7,7 +7,7 @@
 ## Description
 
 Music Audiolyser is a school project that analyses songs' features and allows computing predictions using KNN (and maybe more in the future).
-It serves as an exemple to demonstrate when machine learning can be useful.
+It serves as an example to demonstrate when machine learning can be useful.
 This project also includes a basic UI to upload songs (currently only "Upload songs" works).
 
 
