@@ -8,6 +8,8 @@
 
 ### Download FFmpeg
 
+### Download sqlite3 (and libsqlite3-dev)
+
 #### Windows
 
 $ winget install -e --id Gyan.FFmpeg

@@ -83,7 +83,7 @@ def log_subprocess_output(pipe: IO[bytes], decode: bool = True, level: int = 10)
 
     for line in iter(pipe.readline, b""):  # b'\n'-separated lines
         decoded = line.decode("utf-8")
-        logger.log(level, "Extracted line from subprocess STDOUT: %r", decoded if decode else line)
+        logger.log(level, "Extracted line from subprocess STDOUT: %s", decoded if decode else line)
         lines.append(decoded)
 
     return lines
