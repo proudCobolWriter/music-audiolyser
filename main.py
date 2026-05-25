@@ -3,10 +3,11 @@ import sys
 import django
 
 # Constants
+CHECK_PY_VERSION = False
 REQUIRED_PY_VERSION = "3.9.18"
 
 # Starting the node/webserver
-if sys.version_info[0:3] != tuple(map(int, REQUIRED_PY_VERSION.split("."))):
+if CHECK_PY_VERSION and sys.version_info[0:3] != tuple(map(int, REQUIRED_PY_VERSION.split("."))):
     raise UserWarning(
         f"The interpreter is running the wrong version of python (currently: {'.'.join(map(str, sys.version_info[0:3]))}) which could cause issues with Essentia.\nConsider using the {REQUIRED_PY_VERSION} one"
     )

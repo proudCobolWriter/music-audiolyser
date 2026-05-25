@@ -6,19 +6,66 @@
 
 ...
 
+### Download FFmpeg
+
+#### Windows
+
+$ winget install -e --id Gyan.FFmpeg
+
+#### Debian
+
+$ sudo apt-get install ffmpeg
+
+### Get the correct Python version (3.13.13)
+
+#### Windows
+
+$ winget install python.python.3.9 --version="3.9.18"
+
+$ py -3.9 --version
+-> it should output "Python 3.9.18"
+
+#### Debian
+
+```
+$ sudo apt update
+$ sudo apt install -y build-essential zlib1g-dev libncurses-dev libgdbm-dev \
+libnss3-dev libssl-dev libreadline-dev libffi-dev libsqlite3-dev \
+wget curl llvm libbz2-dev xz-utils tk-dev liblzma-dev libncursesw6
+
+$ cd /usr/src
+$ sudo wget https://www.python.org/ftp/python/3.9.18/Python-3.9.18.tgz
+$ sudo tar xzf Python-3.9.18.tgz
+$ cd Python-3.9.18
+
+$ sudo ./configure --enable-optimizations --with-ensurepip=install
+$ sudo make altinstall
+
+$ python3.9 --version
+-> it should output "Python 3.9.18"
+```
+
 ### Create a virtual environment
 
-python -m venv myenv
+#### Windows
+
+$ py -3.9 -m pip install --user virtualenv
+$ py -3.9 -m venv .venv
+
+#### Linux
+
+$ python3.9 -m pip install --user virtualenv
+$ python3.9 -m venv .venv
 
 ### Activate the virtual environment
 
 #### Windows
 
-$ myenv\Scripts\activate
+$ .venv\Scripts\activate
 
 #### macOS and Linux
 
-$ source myenv/bin/activate
+$ source .venv/bin/activate
 
 ## TODO:
 

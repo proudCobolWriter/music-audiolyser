@@ -1,13 +1,14 @@
-from typing import Union, Callable, Any
+from urllib.parse import urlparse, parse_qs
+from typing import IO, Union, Callable, Any
 from functools import wraps
 from pathlib import Path
 from subprocess import run, call, Popen, PIPE, STDOUT, DEVNULL, CalledProcessError
-from io import BytesIO
 
 import re as regex
 import asyncio
 import logging
 import pprint
+import random
 import json
 import time
 import os
@@ -17,7 +18,7 @@ from tensorflow_worker.logging.custom import CustomFormatter as cf
 # Setting up the custom colored logger
 
 logger = logging.getLogger("YouTube")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 colorlog = logging.StreamHandler()
 colorlog.setLevel(logging.DEBUG)
@@ -25,14 +26,20 @@ colorlog.setFormatter(cf())
 
 logger.addHandler(colorlog)
 
-# Constants
+# CONSTANTS
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 OUTPUT_PATH = ROOT_DIR / ".cache" / "songs"
-MAX_CACHE_SIZE = "100mb"  # kb, mb or gb
+MAX_CACHE_SIZE = 100  # in MB
 MAX_YT_VIDEO_DURATION = 10  # in minutes
-AUDIO_FORMAT = "mp3"  # usually either wav or mp3, wav is preferred for the highest quality
-AUDIO_QUALITY = "bestaudio"  # see docs: https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#extractor-options
+YOUTUBE_CLIENT = "android"
+AUDIO_QUALITY = "best"  # see docs: https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#extractor-options
+AUDIO_FORMAT = (
+    "mp3"  # usually either wav or mp3, wav is preferred for the highest quality, mp3 is preferred for file size
+)
+
+YOUTUBE_DOMAINS = ["youtu.be", "youtube.com"]
+MAX_DOWNLOAD_RETRIES = 3
 
 # Util
 
@@ -54,7 +61,7 @@ def flatten_args(tbl: list[Union[str, dict[str, str]]]) -> list[str]:
 def ensure_path(path: Union[Path, str]) -> bool:  # returns true if a path gets created for logging
     try:
         if type(path) == str:
-            path = Path(str)
+            path = Path(path)
         elif not isinstance(path, Path):
             raise ValueError("A path or a string must be given")
 
@@ -62,14 +69,16 @@ def ensure_path(path: Union[Path, str]) -> bool:  # returns true if a path gets 
             path.mkdir(parents=True, exist_ok=True)
             return True
     except PermissionError:
-        logger.error(f"Not enough permissions to create the appropriate directories at file path: {path}")
+        logger.error(
+            f"Not enough permissions to create the appropriate directories at file path: {path}", exc_info=True
+        )
     except OSError:
         logger.error(f"OS Error at: {path}", exc_info=True)
 
     return False
 
 
-def log_subprocess_output(pipe: BytesIO, decode: bool = True, level: int = 10) -> list[Union[str, None]]:
+def log_subprocess_output(pipe: IO[bytes], decode: bool = True, level: int = 10) -> list[Union[str, None]]:
     lines = []
 
     for line in iter(pipe.readline, b""):  # b'\n'-separated lines
@@ -96,57 +105,110 @@ def check_tool_cli(args: list[str]) -> None:
         raise ProcessLookupError()
 
 
-def update_jobs_decorator(foo: Callable[[Any, Any], Any]) -> Callable[[Any, Any], Any]:
-    @wraps(foo)
-    def wrapper(self, *args, **kwargs):
-        foo(self, *args, **kwargs)
-        asyncio.run(self.updateCoroutine())
-
-    return wrapper
-
-
 # Youtube videos downloader export
 
 
 class YTDownloader:
-    def __init__(self) -> None:
+    def __init__(self, workers: int = 3) -> None:
         # Check for ffmpeg and ffprobe (required dependencies)
         check_tool_cli(["ffmpeg", "-version"])
         check_tool_cli(["ffprobe", "-version"])
 
-        self.Queue: set[str] = set()
-        self.__coqueue: set[asyncio.Task] = set()
+        self.queue: asyncio.Queue[str] = asyncio.Queue()
+        self.queued_ids: set[str] = set()
+        self.active_downloads: set[str] = set()
+        self.workers = workers
+        self.worker_tasks = []
 
-    async def __downloadJobAsync(self, url) -> Any:
-        print("start")
-        await asyncio.sleep(3)
-        print("end")
-        # self.download(url)
+    async def worker(self):
+        while True:
+            url = await self.queue.get()
 
-    async def updateCoroutine(self) -> None:
-        for url in self.Queue:
-            if any([co.get_name() == url for co in self.__coqueue]):
-                logger.warning(f"Already processing {url = }, ignoring")
-                continue
+            try:
+                if url in self.active_downloads:
+                    logger.warning(f"Already downloading {url = }, ignoring...")
+                    continue
 
-            def discard(future: asyncio.Task):
-                for item in self.__coqueue:
-                    if item is future:
-                        self.__coqueue.discard(item)
-                        print(future.result())
-                        break
+                self.active_downloads.add(url)
 
-            task = asyncio.create_task(self.__downloadJobAsync(url), name=url)
-            task.add_done_callback(discard)
-            self.__coqueue.add(task)
-            await task
+                def run_thread(url: str):
+                    YTDownloader.download(url)
+                    YTDownloader.clear_cache()
+
+                await asyncio.sleep(random.uniform(1, 3))
+                await asyncio.to_thread(run_thread, url)
+            except asyncio.CancelledError:
+                raise
+            except Exception:
+                logger.error(f"Failure to download {url = }...", exc_info=True)
+            finally:
+                self.active_downloads.discard(url)
+                self.queued_ids.discard(YTDownloader.extract_id(url))
+                self.queue.task_done()
+
+    async def wait(self):
+        # waits till all tasks are processed
+        await self.queue.join()
+
+    async def start(self):
+        for _ in range(self.workers):
+            task = asyncio.create_task(self.worker())
+            self.worker_tasks.append(task)
+
+    async def stop(self):
+        for task in self.worker_tasks:
+            task.cancel()
+
+        await asyncio.gather(*self.worker_tasks, return_exceptions=True)
+
+    def __repr__(self) -> None:
+        fields = ", ".join(f"{i!r}={v!r}" for (i, v) in zip(self.__dict__.keys(), self.__dict__.values()))
+        return f"{self.__class__.__name__}({fields})"
+
+    def __str__(self) -> None:
+        return self.__repr__()
+
+    # overload the + operator to add new URLs
+    def __add__(self, x: Union[str, list[str]]):
+        if isinstance(x, str):
+            self.enqueue(x)
+        elif isinstance(x, list) and all([type(u) == str for u in x]):
+            for u in x:
+                self.enqueue(u)
+        else:
+            logger.error("Unknown type of string or collection of strings given", exc_info=True)
+
+        return self  # allows chaining if desired
+
+    def __len__(self) -> int:
+        return self.queue.qsize()
+
+    def enqueue(self, url: str):
+        if not isinstance(url, str):
+            logger.error("A string representative of an URL must be given", exc_info=True)
+            return
+
+        id = YTDownloader.extract_id(url)
+
+        if id is None:
+            logger.warning(f"Invalid youTube URL: {url}")
+            return
+
+        if id in self.queued_ids:
+            logger.warning(f"Tried to add a duplicate {url = }, ignoring...")
+            return
+
+        self.queued_ids.add(id)
+        self.queue.put_nowait(url)
 
     @staticmethod
-    def fetchPlaylistItems(url: str) -> list[Union[str, None]]:
+    def fetch_playlist_items(url: str) -> list[Union[str, None]]:
         playlist_items = []
 
         try:
-            getplaylist_args = ["--no-download", "--flat-playlist", "--print", "url", url]
+            sabr_bypass = {"--extractor-args": f"youtube:player_client={YOUTUBE_CLIENT}"}
+
+            getplaylist_args = [sabr_bypass, "--no-download", "--flat-playlist", "--print", "url", url]
             flattened_getplaylist_args = flatten_args(getplaylist_args)
 
             result = run(["yt-dlp", *flattened_getplaylist_args], text=True, check=True, capture_output=True).stdout
@@ -157,39 +219,35 @@ class YTDownloader:
             logger.error("Failed to retrieve the different videos in the provided playlist:", exc_info=True)
         except Exception:
             logger.error("Unexpected error occurred during the YouTube download:", exc_info=True)
-        finally:
-            return playlist_items
 
-    def __repr__(self) -> None:
-        fields = ", ".join(f"{i!r}={v!r}" for (i, v) in zip(self.__dict__.keys(), self.__dict__.values()))
-        return f"{self.__class__.__name__}({fields})"
+        return playlist_items
 
-    def __str__(self) -> None:
-        return self.__repr__()
+    @staticmethod
+    def extract_id(url_string: str) -> str:
+        # Make sure all URLs start with a valid scheme
+        if not url_string.lower().startswith("http"):
+            url_string = "http://%s" % url_string
 
-    @update_jobs_decorator
-    def __add__(self, other_value: Union[str, list[str]]) -> None:
-        if isinstance(other_value, str):
-            if other_value in self.Queue:
-                logger.warning(f"Tried to add duplicate url ({other_value}), aborting")
-            self.Queue.add(other_value)
-        else:
-            if not (isinstance(other_value, list) and all([type(x) == str for x in other_value])):
-                raise ArithmeticError(
-                    f"Can only add strings or an array of strings to the queue, got {type(other_value).__name__}"
-                )
-            else:
-                for url in other_value:
-                    if url in self.Queue:
-                        logger.warning(f"Tried to add duplicate url ({url}), ignoring")
-                self.Queue = self.Queue.union(other_value)
+        url = urlparse(url_string)
+
+        # Check host against whitelist of domains
+        if not url.hostname or (url.hostname.replace("www.", "") not in YOUTUBE_DOMAINS):
+            return None
+
+        # Video ID is usually to be found in 'v' query string
+        qs = parse_qs(url.query)
+        if "v" in qs:
+            return qs["v"][0]
+
+        # Otherwise fall back to path component
+        return url.path.lstrip("/")
 
     @staticmethod
     def download(urls: Union[str, list[str]]) -> None:
         if isinstance(urls, str):  # ensuring list of strings for the for loop
             if urls.find("list") != -1:  # is a YouTube playlist?
                 logger.info("Detected a playlist input, fetching its content now:")
-                urls = YTDownloader.fetchPlaylistItems(urls)  # -> fetch its content
+                urls = YTDownloader.fetch_playlist_items(urls)  # -> fetch its content
             else:
                 urls = [urls]
 
@@ -201,18 +259,43 @@ class YTDownloader:
                 if ensure_path(OUTPUT_PATH):
                     logger.info(f"A directory has been created at: {OUTPUT_PATH}")
 
+                sabr_bypass = {"--extractor-args": f"youtube:player_client={YOUTUBE_CLIENT}"}
+
                 getfilename_args = [
+                    sabr_bypass,
                     "--no-download",
                     "-j",
                     url,
                 ]
                 flattened_getfilename_args = flatten_args(getfilename_args)
 
-                result = run(["yt-dlp", *flattened_getfilename_args], text=True, check=True, capture_output=True).stdout
+                result = None
+
+                for attempt in range(MAX_DOWNLOAD_RETRIES):
+                    try:
+                        result = run(
+                            ["yt-dlp", *flattened_getfilename_args], text=True, check=True, capture_output=True
+                        ).stdout
+
+                        break
+                    except Exception as e:
+                        logger.error(
+                            f"Caught error while trying to download {url = }, retrying... ({attempt + 1}/{MAX_DOWNLOAD_RETRIES})",
+                            exc_info=True,
+                        )
+                        time.sleep(attempt + 1)
+                else:
+                    raise CalledProcessError(
+                        f"YT-DLP has failed {MAX_DOWNLOAD_RETRIES} times, aborting."
+                    )  # avoid a json.loads(result) call with result=None
+
                 jsondict = json.loads(result)
 
                 assumed_names = regex.match(r"^(.*?)\s*[-|–|—｜]\s*(.*?)(\.\w{2,4})?$", jsondict["title"])
-                assumed_author_name, assumed_song_name = assumed_names.group(1), assumed_names.group(2)
+                assumed_author_name, assumed_song_name = "Unknown", jsondict["title"]
+
+                if assumed_names:
+                    assumed_author_name, assumed_song_name = assumed_names.group(1), assumed_names.group(2)
 
                 metadata = {
                     "path": f"{jsondict['title']}.{AUDIO_FORMAT}",
@@ -241,6 +324,7 @@ class YTDownloader:
                     continue
 
                 download_args = [
+                    sabr_bypass,
                     "-x",  # ffmpeg and ffprobe are required for audio only file conversion
                     {"-f": AUDIO_QUALITY},
                     {"--audio-format": AUDIO_FORMAT},
@@ -280,3 +364,44 @@ class YTDownloader:
                     f"Song \"{metadata['title']}\" has been successfully saved at path: {OUTPUT_PATH}/{metadata['title']}.{AUDIO_FORMAT} \
                     Process has taken {end_time - start_time:.2f} seconds (using perf_counter)"
                 )
+
+    @staticmethod
+    def get_cache_size() -> int:
+        dir = os.listdir(OUTPUT_PATH)
+        files = [os.path.getsize(OUTPUT_PATH / f) for f in dir if os.path.isfile(OUTPUT_PATH / f)]
+
+        total_size = 0
+        for size in files:
+            total_size += size
+
+        return total_size
+
+    @staticmethod
+    def clear_cache():
+        cache_size = YTDownloader.get_cache_size()
+
+        if cache_size <= MAX_CACHE_SIZE * (1024**2):
+            return
+
+        dir = os.listdir(OUTPUT_PATH)
+        files = [(os.stat(OUTPUT_PATH / f), f) for f in dir if os.path.isfile(OUTPUT_PATH / f)]
+
+        files.sort(key=lambda f: f[0].st_mtime)
+
+        files_removed = 0
+        space_cleared = 0
+
+        for file in files:
+            if cache_size <= MAX_CACHE_SIZE * (1024**2):
+                break
+
+            fdir = OUTPUT_PATH / file[1]
+            size = os.path.getsize(fdir)
+
+            files_removed += 1
+            cache_size -= size
+            space_cleared += size
+
+            os.remove(fdir)
+
+        logger.info(f"{files_removed} files have been removed clearing {space_cleared / (1024**2):.2f}MB")

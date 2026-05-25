@@ -12,12 +12,47 @@ class CustomFormatter(logging.Formatter):
         self.fmt = nonDefaultFormat
 
         self.FORMATS = {
-            logging.DEBUG: "".join([str(Color.BLUE), self.fmt, str(Color.OFF)]),
-            logging.INFO: "".join([str(Color.GREEN), self.fmt, str(Color.OFF)]),
-            logging.WARNING: "".join([str(Color.YELLOW), self.fmt, str(Color.OFF)]),
-            logging.ERROR: "".join([str(Color.RED), self.fmt, str(Color.OFF)]),
+            logging.DEBUG: "".join(
+                [
+                    str(Color.BLUE),
+                    self.fmt,
+                    str(Color.OFF),
+                    str(Effect.UNDERLINE_OFF),
+                ]
+            ),
+            logging.INFO: "".join(
+                [
+                    str(Color.GREEN),
+                    self.fmt,
+                    str(Color.OFF),
+                    str(Effect.UNDERLINE_OFF),
+                ]
+            ),
+            logging.WARNING: "".join(
+                [
+                    str(Color.YELLOW),
+                    self.fmt,
+                    str(Color.OFF),
+                    str(Effect.UNDERLINE_OFF),
+                ]
+            ),
+            logging.ERROR: "".join(
+                [
+                    str(Color.RED),
+                    self.fmt,
+                    str(Color.OFF),
+                    str(Effect.UNDERLINE_OFF),
+                ]
+            ),
             logging.CRITICAL: "".join(
-                [str(Effect.BOLD), str(Color.RED), self.fmt, str(Color.OFF), str(Effect.BOLD_OFF)]
+                [
+                    str(Effect.BOLD),
+                    str(Color.RED),
+                    self.fmt,
+                    str(Color.OFF),
+                    str(Effect.BOLD_OFF),
+                    str(Effect.UNDERLINE_OFF),
+                ]
             ),
         }
 
