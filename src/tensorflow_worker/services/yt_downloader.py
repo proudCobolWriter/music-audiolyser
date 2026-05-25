@@ -18,7 +18,7 @@ from tensorflow_worker.logging.custom import CustomFormatter as cf
 # Setting up the custom colored logger
 
 logger = logging.getLogger("YouTube")
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 colorlog = logging.StreamHandler()
 colorlog.setLevel(logging.DEBUG)
