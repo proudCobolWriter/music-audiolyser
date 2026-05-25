@@ -188,17 +188,17 @@ class YTDownloader:
             logger.error("A string representative of an URL must be given", exc_info=True)
             return
 
-        id = YTDownloader.extract_id(url)
+        ytbid = YTDownloader.extract_id(url)
 
-        if id is None:
+        if ytbid is None:
             logger.warning(f"Invalid youTube URL: {url}")
             return
 
-        if id in self.queued_ids:
+        if ytbid in self.queued_ids:
             logger.warning(f"Tried to add a duplicate {url = }, ignoring...")
             return
 
-        self.queued_ids.add(id)
+        self.queued_ids.add(ytbid)
         self.queue.put_nowait(url)
 
     @staticmethod

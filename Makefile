@@ -22,7 +22,7 @@ install:
 	pip install --no-deps -e .
 
 install-docker:
-	# shrinks image size by removing cache 
+	# shrinks image size by removing cache
 	pip install -r requirements.txt --no-cache-dir
 	pip install --no-deps -e .
 
@@ -44,3 +44,15 @@ reqs-dev:
 	--extra linting,formatting,other \
 	--allow-unsafe \
 	pyproject.toml
+
+open-db:
+	sqlite3 db.sqlite3
+
+go:
+	python3.9 src/manage.py runserver
+
+migrate:
+	python3.9 src/manage.py migrate
+
+migrations:
+	python3.9 src/manage.py makemigrations

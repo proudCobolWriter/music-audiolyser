@@ -14,5 +14,9 @@
         "editor.defaultColorDecorators": "auto",
         "editor.formatOnType": true,
         "editor.wordBasedSuggestions": "off"
+    },
+    "[makefile]": {
+        "editor.insertSpaces": false,
+        "editor.tabSize": 4
     }
 }

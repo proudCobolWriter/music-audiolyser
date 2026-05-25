@@ -1,4 +1,18 @@
-# Test project
+# Music Audiolyser
+
+![Python Version](https://img.shields.io/badge/python-3.9.18-blue)
+
+## Description
+
+Music Audiolyser is a school project that analyses songs' features and allows computing predictions using KNN (and maybe more in the future).
+It serves as an example to demonstrate when machine learning can be useful.
+This project also includes a basic UI to upload songs (currently only "Upload songs" works).
+
+## Features
+
+- Extracts song features (tempo, key, duration, scale (minor and major), etc)
+- Uses KNN models to predict the hypothetical uploader
+- Simple GUI for uploading songs
 
 ## How can I start it?
 
@@ -74,6 +88,9 @@ $ source .venv/bin/activate
 [ ] - Deploy it to ASGI standard<br/>
 [ ] - Deploy with Docker and Dockerfile<br/>
 [ ] - Prettify the code with some python analog
+[ ] - Get rid of the duplicate service ready log
+[ ] - Add 404 page view and pathing
+[ ] - Transition to Celery and Redis/RabbitMQ
 
 ### Powered by ESSENTIA AI and models, along with Tensor Flow.
 
