@@ -5,9 +5,9 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Student, Song
 
-import json
+from music_app.services.downloader_process import command_queue
 
-from tensorflow_worker.services.yt_downloader import YTDownloader
+import json
 
 
 def Res(status: int, message: str):
@@ -59,6 +59,10 @@ def sendSong(request):
 
     song, created = Song.objects.get_or_create(youtube_id=youtube_id)
     song.listeners.add(student)
+
+    # get_downloader() += "https://www.youtube.com/watch?v=" + youtube_id
+
+    command_queue.put("https://www.youtube.com/watch?v=" + youtube_id)
 
     return JsonResponse(
         {

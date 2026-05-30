@@ -88,9 +88,9 @@ $ source .venv/bin/activate
 [ ] - Deploy it to ASGI standard<br/>
 [ ] - Deploy with Docker and Dockerfile<br/>
 [ ] - Prettify the code with some python analog
-[ ] - Get rid of the duplicate service ready log
 [ ] - Add 404 page view and pathing
 [ ] - Transition to Celery and Redis/RabbitMQ
+[ ] - Check cache if the song already exists
 
 ### Powered by ESSENTIA AI and models, along with Tensor Flow.
 

@@ -138,7 +138,8 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")  # aka staticfiles
 
-print(f"[DEBUG]: Base directory is {BASE_DIR}")
+if os.environ.get("RUN_MAIN") == "true":
+    print(f"[DEBUG]: Base directory is {BASE_DIR}")
 
 STATICFILES_DIRS = [BASE_DIR / "vite" / "dist"]
 

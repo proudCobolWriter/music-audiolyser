@@ -155,6 +155,8 @@ class YTDownloader:
             task = asyncio.create_task(self.worker())
             self.worker_tasks.append(task)
 
+        await asyncio.gather(*self.worker_tasks)
+
     async def stop(self):
         for task in self.worker_tasks:
             task.cancel()
