@@ -13,7 +13,7 @@ import json
 import time
 import os
 
-from tensorflow_worker.logging.custom import CustomFormatter as cf
+from services.logging.custom import CustomFormatter as cf
 
 # Setting up the custom colored logger
 

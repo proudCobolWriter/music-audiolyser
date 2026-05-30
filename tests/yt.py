@@ -1,7 +1,7 @@
 if __name__ != "__main__":
     raise ImportError(f"{__name__} is not a module, aborting")
 
-from shared.ytb import YTDownloader
+from services.shared.ytb import YTDownloader
 
 import asyncio
 

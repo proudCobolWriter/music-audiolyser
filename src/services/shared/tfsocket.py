@@ -1,7 +1,7 @@
 import socket
 import logging
 
-from tensorflow_worker.logging.custom import CustomFormatter as cf
+from services.logging.custom import CustomFormatter as cf
 
 # Setting up the custom colored logger
 
