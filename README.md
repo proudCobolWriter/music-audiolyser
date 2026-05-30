@@ -87,10 +87,10 @@ $ source .venv/bin/activate
 
 [ ] - Deploy it to ASGI standard<br/>
 [ ] - Deploy with Docker and Dockerfile<br/>
-[ ] - Prettify the code with some python analog
-[ ] - Add 404 page view and pathing
-[ ] - Transition to Celery and Redis/RabbitMQ
-[ ] - Check cache if the song already exists
+[ ] - Prettify the code with some python analog<br/>
+[ ] - Add 404 page view and pathing<br/>
+[ ] - Transition to Celery and Redis/RabbitMQ<br/>
+[ ] - Check cache if the song already exists<br/>
 [ ] - Upgrade the socket from synchronous to asynchronous design
 
 ### Powered by ESSENTIA AI and models, along with Tensor Flow.
