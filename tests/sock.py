@@ -1,7 +1,7 @@
 if __name__ != "__main__":
     raise ImportError(f"{__name__} is not a module, aborting")
 
-import tensorflow_worker.tfsocket as tfsocket
+import shared.tfsocket as tfsocket
 import socket, time
 import multiprocessing
 

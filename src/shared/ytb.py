@@ -155,8 +155,6 @@ class YTDownloader:
             task = asyncio.create_task(self.worker())
             self.worker_tasks.append(task)
 
-        await asyncio.gather(*self.worker_tasks)
-
     async def stop(self):
         for task in self.worker_tasks:
             task.cancel()
@@ -245,7 +243,7 @@ class YTDownloader:
         return url.path.lstrip("/")
 
     @staticmethod
-    def download(urls: Union[str, list[str]]) -> None:
+    def download(urls: Union[str, list[str]], path: Union[str, Path] = OUTPUT_PATH):
         if isinstance(urls, str):  # ensuring list of strings for the for loop
             if urls.find("list") != -1:  # is a YouTube playlist?
                 logger.info("Detected a playlist input, fetching its content now:")
@@ -258,8 +256,8 @@ class YTDownloader:
                 logger.info(f"Now trying to process {url = }:")
                 start_time = time.perf_counter()
 
-                if ensure_path(OUTPUT_PATH):
-                    logger.info(f"A directory has been created at: {OUTPUT_PATH}")
+                if ensure_path(path):
+                    logger.info(f"A directory has been created at: {path}")
 
                 sabr_bypass = {"--extractor-args": f"youtube:player_client={YOUTUBE_CLIENT}"}
 
@@ -330,7 +328,7 @@ class YTDownloader:
                     "-x",  # ffmpeg and ffprobe are required for audio only file conversion
                     {"-f": AUDIO_QUALITY},
                     {"--audio-format": AUDIO_FORMAT},
-                    {"--output": os.path.join(OUTPUT_PATH, "%(title)s.%(ext)s")},
+                    {"--output": os.path.join(path, "%(title)s.%(ext)s")},
                     "--verbose",
                     "--progress",
                     "--no-playlist",
@@ -353,7 +351,7 @@ class YTDownloader:
                         lines = lines[error_occurrence:]
                     raise ChildProcessError(f"yt-dlp returned status code 1:\nSTDOUT:\n\n{lines}")
 
-                with open(os.path.join(OUTPUT_PATH, metadata["id"] + ".manifest.json"), "wt", encoding="utf-8") as f:
+                with open(os.path.join(path, metadata["id"] + ".manifest.json"), "wt", encoding="utf-8") as f:
                     json.dump(metadata, f, indent=4, ensure_ascii=False)
 
                 end_time = time.perf_counter()
@@ -363,14 +361,14 @@ class YTDownloader:
                 logger.error("Unexpected error occurred during the YouTube download:", exc_info=True)
             else:
                 logger.info(
-                    f"Song \"{metadata['title']}\" has been successfully saved at path: {OUTPUT_PATH}/{metadata['title']}.{AUDIO_FORMAT} \
+                    f"Song \"{metadata['title']}\" has been successfully saved at path: {path}/{metadata['title']}.{AUDIO_FORMAT} \
                     Process has taken {end_time - start_time:.2f} seconds (using perf_counter)"
                 )
 
     @staticmethod
-    def get_cache_size() -> int:
-        dir = os.listdir(OUTPUT_PATH)
-        files = [os.path.getsize(OUTPUT_PATH / f) for f in dir if os.path.isfile(OUTPUT_PATH / f)]
+    def get_cache_size(path: Union[str, Path]) -> int:
+        dir = os.listdir(path)
+        files = [os.path.getsize(path / f) for f in dir if os.path.isfile(path / f)]
 
         total_size = 0
         for size in files:
@@ -379,14 +377,14 @@ class YTDownloader:
         return total_size
 
     @staticmethod
-    def clear_cache():
+    def clear_cache(path: Union[str, Path]) -> tuple[int, int]:
         cache_size = YTDownloader.get_cache_size()
 
         if cache_size <= MAX_CACHE_SIZE * (1024**2):
             return
 
-        dir = os.listdir(OUTPUT_PATH)
-        files = [(os.stat(OUTPUT_PATH / f), f) for f in dir if os.path.isfile(OUTPUT_PATH / f)]
+        dir = os.listdir(path)
+        files = [(os.stat(path / f), f) for f in dir if os.path.isfile(path / f)]
 
         files.sort(key=lambda f: f[0].st_mtime)
 
@@ -397,7 +395,7 @@ class YTDownloader:
             if cache_size <= MAX_CACHE_SIZE * (1024**2):
                 break
 
-            fdir = OUTPUT_PATH / file[1]
+            fdir = path / file[1]
             size = os.path.getsize(fdir)
 
             files_removed += 1
@@ -407,3 +405,5 @@ class YTDownloader:
             os.remove(fdir)
 
         logger.info(f"{files_removed} files have been removed clearing {space_cleared / (1024**2):.2f}MB")
+
+        return (files_removed, space_cleared)
