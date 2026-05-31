@@ -3,6 +3,9 @@
 ![Python Version](https://img.shields.io/badge/python-3.9.18-blue)
 ![License](https://img.shields.io/badge/license-GPL--3.0-green)
 
+> [!WARNING]
+> This project is only supported on **Linux**. The Windows build is not functional due to `essentia-tensorflow` having no Windows support.
+
 A school project that analyses song features and predicts their hypothetical uploader using machine learning models (KNN, Random Forest, Neural Network).
 
 ---
@@ -87,9 +90,9 @@ poetry run pyinstaller main.spec
 
 All config files live in `data/config/` and are created automatically on first launch with sensible defaults. You can edit them freely without recompiling.
 
--`ui.json` | Theme, window size, font |
--`model.json` | Active model type and hyperparameters |
--`paths.json` | Paths to the database, downloads folder, models |
+- ui.json | Theme, window size, font |
+- model.json | Active model type and hyperparameters |
+- paths.json | Paths to the database, downloads folder, models |
 
 ---
 
