@@ -1,4 +1,5 @@
 import re
+
 import yt_dlp
 
 from music_audiolyser.core.utils.constants import (
@@ -14,14 +15,16 @@ def video_download(URL):
         "extractor_args": {"youtube": {"player_client": ["android"]}},
         "outtmpl": "%(title)s.%(ext)s",
         "quiet": True,
-        "simulate": True,  
+        "simulate": True,
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts_filename) as ydl:
             info = ydl.extract_info(URL, download=False)
             video_filename = ydl.prepare_filename(info)
-            video_filename = re.sub(r"\.[^.]+$", f".{YT_DLP_AUDIO_FORMAT}", video_filename)
+            video_filename = re.sub(
+                r"\.[^.]+$", f".{YT_DLP_AUDIO_FORMAT}", video_filename
+            )
 
         print("vidéo " + video_filename)
 
@@ -33,10 +36,12 @@ def video_download(URL):
             ydl_opts_download = {
                 "extractor_args": {"youtube": {"player_client": ["android"]}},
                 "format": "bestaudio/best",
-                "postprocessors": [{
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": YT_DLP_AUDIO_FORMAT,
-                }],
+                "postprocessors": [
+                    {
+                        "key": "FFmpegExtractAudio",
+                        "preferredcodec": YT_DLP_AUDIO_FORMAT,
+                    }
+                ],
                 "outtmpl": YT_DL_OUTPUT,
                 "verbose": True,
             }
