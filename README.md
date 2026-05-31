@@ -66,7 +66,7 @@ python src/music_audiolyser/main.py
 
 ## Compiled executable
 
-Pre-built binaries for Linux and Windows are available in the [Actions](../../actions) tab under the latest workflow run (see the **Artifacts** section at the bottom of the page).
+Pre-built binary for Linux is available in the [Actions](../../actions) tab under the latest workflow run (see the **Artifacts** section at the bottom of the page).
 
 The `data/` folder must be placed **next to the executable** for it to work:
 ```
