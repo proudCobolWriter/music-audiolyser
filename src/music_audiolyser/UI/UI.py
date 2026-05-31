@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from PIL import Image
 
-from ..core.utils.loader import PATHS_CONFIG, UI_CONFIG
+from ..core.utils.constants import PATHS_CONFIG, UI_CONFIG
 from . import widgets
 
 
@@ -23,7 +23,9 @@ class App(ctk.CTk):
         title = ctk.CTkLabel(top_frame, text=UI_CONFIG["title"], font=("Arial", 45))
         title.place(relx=0.5, rely=0.5, anchor="center")
 
-        button_settings = ctk.CTkButton(top_frame, text="settings", width=70, height=70)
+        button_settings = ctk.CTkButton(
+            top_frame, text="settings", width=70, height=70, command=self.openSettings
+        )
         button_settings.place(relx=1.0, rely=0.0, anchor="ne", x=-20)
 
         main_menu_img = Image.open(PATHS_CONFIG["ui_images"]["main_menu_img"])
@@ -52,6 +54,7 @@ class App(ctk.CTk):
 
         self.song_dump_window = None
         self.song_predict_window = None
+        self.settings_window = None
 
     def openSongDump(self):
         if self.song_dump_window is None or not self.song_dump_window.winfo_exists():
@@ -67,3 +70,10 @@ class App(ctk.CTk):
             self.song_predict_window = widgets.SongPredict(self)
         else:
             self.song_predict_window.focus()
+
+    def openSettings(self):
+
+        if self.settings_window is None or not self.settings_window.winfo_exists():
+            self.settings_window = widgets.Settings(self)
+        else:
+            self.settings_window.focus()

@@ -24,6 +24,7 @@ isort = "^6.0.1"
 pre-commit = "^4.3.0"
 flake8 = "6.1.0"
 pytest-cov = "^6.2.1"
+pyinstaller = "^6.20.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

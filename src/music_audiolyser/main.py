@@ -1,10 +1,11 @@
 import sys
 
-from .UI.UI import App
+from music_audiolyser.UI.UI import App
 
 
 def run():
     app = App()
+
     app.mainloop()
 
 

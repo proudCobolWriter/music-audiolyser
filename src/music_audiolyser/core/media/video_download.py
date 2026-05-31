@@ -1,14 +1,25 @@
 import re
 import subprocess
 
-from music_audiolyser.core.utils.constants import YT_DL_OUTPUT, YT_DLP_AUDIO_FORMAT
-from music_audiolyser.core.utils.loader import PATHS_CONFIG
+from music_audiolyser.core.utils.constants import (
+    PATHS_CONFIG,
+    YT_DL_OUTPUT,
+    YT_DLP_AUDIO_FORMAT,
+)
 
 
 def video_download(URL):
     is_downloaded = False
 
-    command_get_filename = ["yt-dlp", "--get-filename", "-o", "%(title)s.%(ext)s", URL]
+    command_get_filename = [
+        "yt-dlp",
+        "--extractor-args",
+        "youtube:player_client=android",
+        "--get-filename",
+        "-o",
+        "%(title)s.%(ext)s",
+        URL,
+    ]
 
     try:
         result = subprocess.run(
@@ -23,8 +34,10 @@ def video_download(URL):
 
         command_download = [
             "yt-dlp",
+            "--extractor-args",
+            "youtube:player_client=android",
             "-f",
-            "bestaudio",
+            "bestaudio/best",
             "--extract-audio",
             "--audio-format",
             YT_DLP_AUDIO_FORMAT,

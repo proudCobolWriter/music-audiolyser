@@ -1,18 +1,40 @@
 {
-    "default_model": "knn",
+    "default_model": "Random Forest",
     "available_models": [
-        "knn",
-        "random_forest",
-        "neural_net"
+        "KNN",
+        "Random Forest",
+        "Neural N."
     ],
     "use_gpu": false,
-    "knn": {
-      "n_neighbors": 5,
-      "weights": {
-         "value": "distance",
-         "options": ["distance","uniform"],
-         "description": "Method to calculate the neighbors' contribution : 'uniform' = simple average, 'distance' = weighted average based on proximity"
-       
-        }
+    "KNN": {
+        "n_neighbors": 5,
+        "weights": "distance"
+    },
+    "Random Forest": {
+        "n_estimators": 200,
+        "max_depth": null,
+        "min_samples_split": 2,
+        "min_samples_leaf": 1,
+        "n_jobs": -1,
+        "criterion": "gini",
+        "bootstrap": true
+    },
+    "Neural N.": {
+        "hidden_layer_sizes": [
+            256,
+            128,
+            64
+        ],
+        "activation": "relu",
+        "solver": "adam",
+        "alpha": 0.001,
+        "batch_size": 32,
+        "learning_rate": "adaptive",
+        "learning_rate_init": 0.0005,
+        "max_iter": 2000,
+        "early_stopping": true,
+        "validation_fraction": 0.1,
+        "n_iter_no_change": 25,
+        "verbose": true
     }
 }

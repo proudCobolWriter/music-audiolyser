@@ -4,7 +4,7 @@ from ...core.media.video_download import video_download
 from ...core.preds.genre_pred import genre_pred
 from ...core.preds.mood_pred import mood_pred
 from ...core.preds.other_pred import pred
-from ...core.models.knn import run_knn
+from ..model.run_model import run_model
 
 
 def predict_song(url, progress_callback=None):
@@ -45,28 +45,25 @@ def predict_song(url, progress_callback=None):
         bpm, danceability, key, scale = pred(audio)
 
         result = {
-            "Genre": genre,
-            "BPM": bpm,
-            "Danceability": danceability,
-            "Key": key,
-            "Scale": scale,
-            "Mood": mood,
+            "genre": genre,
+            "bpm": bpm,
+            "danceability": danceability,
+            "key": key,
+            "scale": scale,
+            "mood": mood,
         }
 
         if progress_callback:
             progress_callback(song_name="Running KNN", advance=True)
-        
-        result = run_knn(result)
+
+        result = run_model(result)
 
         if progress_callback:
             progress_callback(song_name="Done", advance=True)
 
-
         return result[0]
-
-        
 
     except Exception as e:
         if progress_callback:
-            progress_callback(song_name=1, advance=False)  
+            progress_callback(song_name=1, advance=False)
         print("Error while processing :", e)

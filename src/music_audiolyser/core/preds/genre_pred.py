@@ -1,9 +1,7 @@
 import numpy as np
 from essentia.standard import TensorflowPredict2D, TensorflowPredictEffnetDiscogs
 
-from music_audiolyser.core.utils.constants import ALL_GENRES
-
-from ...core.utils.loader import PATHS_CONFIG
+from music_audiolyser.core.utils.constants import ALL_GENRES, PATHS_CONFIG
 
 
 def genre_pred(audio):

@@ -1,10 +1,10 @@
+import json
 import multiprocessing
 
 import customtkinter as ctk
 from PIL import Image
 
-from ..core.utils.loader import PATHS_CONFIG
-
+from ..core.utils.constants import CONFIG_DIR, MODEL_CONFIG, PATHS_CONFIG
 
 
 class PopUp(ctk.CTkToplevel):
@@ -91,7 +91,7 @@ class ProgressPopUp(ctk.CTkToplevel):
                 elif msg[0] == "result":
                     self.result = msg[1]
                     if not hasattr(self, "popup") or not self.popup.winfo_exists():
-                        popup = PredictPopUp(self, self.result)
+                        self.popup = PredictPopUp(self, self.result)
                     else:
                         self.popup.focus()
                 elif msg[0] == "done":
@@ -169,8 +169,8 @@ def worker_predict(url, queue):
     def progress_callback(song_name, advance):
         queue.put(("progress", song_name, advance))
 
-    result = predict_song(url, progress_callback = progress_callback)
-    queue.put(("result",result))
+    result = predict_song(url, progress_callback=progress_callback)
+    queue.put(("result", result))
     queue.put(("done",))
 
 
@@ -186,18 +186,15 @@ class PredictPopUp(ctk.CTkToplevel):
         self.container = ctk.CTkFrame(self, corner_radius=15)
         self.container.pack(fill="both", expand=True, padx=15, pady=15)
 
-
         self.title_label = ctk.CTkLabel(
-            self.container,
-            text="Best match found",
-            font=("Arial", 20, "bold")
+            self.container, text="Best match found", font=("Arial", 20, "bold")
         )
         self.title_label.pack(pady=(15, 10))
 
         self.subtitle = ctk.CTkLabel(
             self.container,
             text="This song best matches the music taste of:",
-            font=("Arial", 14)
+            font=("Arial", 14),
         )
         self.subtitle.pack(pady=(0, 10))
 
@@ -205,16 +202,17 @@ class PredictPopUp(ctk.CTkToplevel):
             self.container,
             text=listener,
             font=("Arial", 22, "bold"),
-            text_color="#4cc9f0"
+            text_color="#4cc9f0",
         )
         self.listener_label.pack(pady=(5, 15))
         self.footer = ctk.CTkLabel(
             self.container,
-            text="Model: KNN recommendation system",
+            text=f"Model: {MODEL_CONFIG['default_model']} recommendation system",
             font=("Arial", 10),
-            text_color="gray"
+            text_color="gray",
         )
         self.footer.pack(pady=(0, 10))
+
 
 class SongDump(ctk.CTkToplevel):
     def __init__(self, *args, **kwargs):
@@ -271,7 +269,7 @@ class SongPredict(ctk.CTkToplevel):
         self.hint = ctk.CTkLabel(self, text="Enter song's URL :")
         self.hint.pack(padx=20, pady=20)
         self.textbox = ctk.CTkTextbox(self, width=400, height=30)
-        self.textbox.pack(padx=20,pady=20)
+        self.textbox.pack(padx=20, pady=20)
         self.dump_button = ctk.CTkButton(
             self,
             width=400,
@@ -282,12 +280,14 @@ class SongPredict(ctk.CTkToplevel):
         self.dump_button.pack(pady=30, padx=10)
         self.progress_pop_up_window = None
 
-
-    def dump_song(self,textbox):
+    def dump_song(self, textbox):
         content = textbox.get("1.0", "end-1c")
         if content == "":
             return
-        if self.progress_pop_up_window is None or not self.progress_pop_up_window.winfo_exists():
+        if (
+            self.progress_pop_up_window is None
+            or not self.progress_pop_up_window.winfo_exists()
+        ):
             self.after_pop_up(content)
 
     def after_pop_up(self, url: str):
@@ -299,5 +299,69 @@ class SongPredict(ctk.CTkToplevel):
         process.start()
 
 
-            
-        
+def save_config():
+    with open(CONFIG_DIR / "model.json", "w") as f:
+        json.dump(MODEL_CONFIG, f, indent=4)
+
+
+class Settings(ctk.CTkToplevel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.geometry("420x180")
+        self.title("Settings")
+        self.resizable(False, False)
+
+        self.selected_model = ctk.StringVar(value=MODEL_CONFIG["default_model"])
+
+        title = ctk.CTkLabel(
+            self, text="Choose your model", font=ctk.CTkFont(size=18, weight="bold")
+        )
+        title.pack(pady=20)
+
+        container = ctk.CTkFrame(self, fg_color="transparent")
+        container.pack(pady=10)
+
+        models = MODEL_CONFIG["available_models"]
+        self.buttons = {}
+
+        for model in models:
+            btn = ctk.CTkButton(
+                container,
+                text=model,
+                height=35,
+                width=130,
+                corner_radius=20,
+                fg_color="#2b2b2b",
+                hover_color="#3a3a3a",
+                command=lambda m=model: self.select_model(m),
+            )
+            btn.pack(side="left", padx=8)
+            self.buttons[model] = btn
+
+        self.warning_label = ctk.CTkLabel(
+            self, text="", text_color="red", font=ctk.CTkFont(size=11)
+        )
+        self.warning_label.pack(pady=(10, 0))
+
+        self.update_ui()
+
+    def select_model(self, model):
+        self.selected_model.set(model)
+
+        MODEL_CONFIG["default_model"] = model
+
+        save_config()
+
+        self.warning_label.configure(
+            text="⚠ Restart required for changes to take effect"
+        )
+
+        self.update_ui()
+
+    def update_ui(self):
+        for model, btn in self.buttons.items():
+            if self.selected_model.get() == model:
+                btn.configure(fg_color="#3B82F6", hover_color="#2563EB")
+            else:
+                btn.configure(fg_color="#2b2b2b", hover_color="#3a3a3a")
