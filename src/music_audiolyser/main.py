@@ -1,4 +1,5 @@
 import sys
+import multiprocessing
 
 from music_audiolyser.UI.UI import App
 
@@ -15,4 +16,5 @@ if __name__ == "__main__":
 
         song_pipeline.song_pipeline()
     else:
+        multiprocessing.freeze_support()
         run()
