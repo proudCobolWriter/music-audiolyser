@@ -21,7 +21,9 @@ class App(ctk.CTk):
 
         top_frame.pack_propagate(False)
 
-        title = ctk.CTkLabel(top_frame, text=UI_CONFIG["title"], font=(UI_CONFIG["font"], 45))
+        title = ctk.CTkLabel(
+            top_frame, text=UI_CONFIG["title"], font=(UI_CONFIG["font"], 45)
+        )
         title.place(relx=0.5, rely=0.5, anchor="center")
 
         button_settings = ctk.CTkButton(

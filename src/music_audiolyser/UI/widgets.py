@@ -13,7 +13,11 @@ class PopUp(ctk.CTkToplevel):
         self.geometry("200x100")
         self.title("pop up")
         subtitle = ctk.CTkLabel(
-            self, text="Enter your name", width=130, height=30, font=(UI_CONFIG["font"], 18)
+            self,
+            text="Enter your name",
+            width=130,
+            height=30,
+            font=(UI_CONFIG["font"], 18),
         )
         subtitle.pack(side="top")
         self.entry = ctk.CTkEntry(self, width=150, height=50)
@@ -44,7 +48,10 @@ class ProgressPopUp(ctk.CTkToplevel):
         self.label = ctk.CTkLabel(self, text="0%", font=(UI_CONFIG["font"], 14))
         self.label.pack(pady=(10, 5))
         self.current_song_name = ctk.CTkLabel(
-            self, text="Initializing TensorFlow", font=(UI_CONFIG["font"], 14), width=430
+            self,
+            text="Initializing TensorFlow",
+            font=(UI_CONFIG["font"], 14),
+            width=430,
         )
         self.current_song_name.pack(pady=(0, 10))
         self.total = total
@@ -187,7 +194,9 @@ class PredictPopUp(ctk.CTkToplevel):
         self.container.pack(fill="both", expand=True, padx=15, pady=15)
 
         self.title_label = ctk.CTkLabel(
-            self.container, text="Best match found", font=(UI_CONFIG["font"], 20, "bold")
+            self.container,
+            text="Best match found",
+            font=(UI_CONFIG["font"], 20, "bold"),
         )
         self.title_label.pack(pady=(15, 10))
 
