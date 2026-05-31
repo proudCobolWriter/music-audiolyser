@@ -8,7 +8,7 @@ license = "GPL-3.0-or-later"
 packages = [{ include = "music_audiolyser", from = "src" }]
 
 [tool.poetry.dependencies]
-python = "3.9.18"
+python = ">=3.9,<3.10"
 customtkinter = "^5.2.2"
 essentia-tensorflow = "2.1b6.dev1110"
 numpy = "1.26.4"
