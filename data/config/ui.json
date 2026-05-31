@@ -1,5 +1,6 @@
 {
     "theme": "dark",
+    "color_theme": "blue",
     "window_size": "700x530",
     "font": "Arial",
     "title": "Music Audiolyser"

@@ -1,5 +1,5 @@
 {
-    "default_model": "Random Forest",
+    "default_model": "KNN",
     "available_models": [
         "KNN",
         "Random Forest",

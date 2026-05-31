@@ -4,7 +4,7 @@ import multiprocessing
 import customtkinter as ctk
 from PIL import Image
 
-from ..core.utils.constants import CONFIG_DIR, MODEL_CONFIG, PATHS_CONFIG
+from ..core.utils.constants import CONFIG_DIR, MODEL_CONFIG, PATHS_CONFIG, UI_CONFIG
 
 
 class PopUp(ctk.CTkToplevel):
@@ -13,7 +13,7 @@ class PopUp(ctk.CTkToplevel):
         self.geometry("200x100")
         self.title("pop up")
         subtitle = ctk.CTkLabel(
-            self, text="Enter your name", width=130, height=30, font=("Arial", 18)
+            self, text="Enter your name", width=130, height=30, font=(UI_CONFIG["font"], 18)
         )
         subtitle.pack(side="top")
         self.entry = ctk.CTkEntry(self, width=150, height=50)
@@ -41,10 +41,10 @@ class ProgressPopUp(ctk.CTkToplevel):
         )
         self.progress.pack(pady=10)
         self.progress.set(0)
-        self.label = ctk.CTkLabel(self, text="0%", font=("Arial", 14))
+        self.label = ctk.CTkLabel(self, text="0%", font=(UI_CONFIG["font"], 14))
         self.label.pack(pady=(10, 5))
         self.current_song_name = ctk.CTkLabel(
-            self, text="Initializing TensorFlow", font=("Arial", 14), width=430
+            self, text="Initializing TensorFlow", font=(UI_CONFIG["font"], 14), width=430
         )
         self.current_song_name.pack(pady=(0, 10))
         self.total = total
@@ -187,28 +187,28 @@ class PredictPopUp(ctk.CTkToplevel):
         self.container.pack(fill="both", expand=True, padx=15, pady=15)
 
         self.title_label = ctk.CTkLabel(
-            self.container, text="Best match found", font=("Arial", 20, "bold")
+            self.container, text="Best match found", font=(UI_CONFIG["font"], 20, "bold")
         )
         self.title_label.pack(pady=(15, 10))
 
         self.subtitle = ctk.CTkLabel(
             self.container,
             text="This song best matches the music taste of:",
-            font=("Arial", 14),
+            font=(UI_CONFIG["font"], 14),
         )
         self.subtitle.pack(pady=(0, 10))
 
         self.listener_label = ctk.CTkLabel(
             self.container,
             text=listener,
-            font=("Arial", 22, "bold"),
+            font=(UI_CONFIG["font"], 22, "bold"),
             text_color="#4cc9f0",
         )
         self.listener_label.pack(pady=(5, 15))
         self.footer = ctk.CTkLabel(
             self.container,
             text=f"Model: {MODEL_CONFIG['default_model']} recommendation system",
-            font=("Arial", 10),
+            font=(UI_CONFIG["font"], 10),
             text_color="gray",
         )
         self.footer.pack(pady=(0, 10))
@@ -218,6 +218,7 @@ class SongDump(ctk.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.geometry("700x500")
+        self.title("Dump")
 
         title = ctk.CTkLabel(self, text="Upload songs")
         title.pack(padx=20, pady=20)
@@ -262,6 +263,7 @@ class SongDump(ctk.CTkToplevel):
 class SongPredict(ctk.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.title("Prediction")
         self.geometry("400x300")
 
         self.label = ctk.CTkLabel(self, text="Predict the ideal listener")

@@ -11,6 +11,7 @@ class App(ctk.CTk):
         self.geometry(UI_CONFIG["window_size"])
         self.title(UI_CONFIG["title"])
         ctk.set_appearance_mode(UI_CONFIG["theme"])
+        ctk.set_default_color_theme(UI_CONFIG["color_theme"])
 
         button_frame = ctk.CTkFrame(self, width=500, height=100)
         button_frame.pack(pady=50, padx=50, side="bottom")
@@ -20,7 +21,7 @@ class App(ctk.CTk):
 
         top_frame.pack_propagate(False)
 
-        title = ctk.CTkLabel(top_frame, text=UI_CONFIG["title"], font=("Arial", 45))
+        title = ctk.CTkLabel(top_frame, text=UI_CONFIG["title"], font=(UI_CONFIG["font"], 45))
         title.place(relx=0.5, rely=0.5, anchor="center")
 
         button_settings = ctk.CTkButton(
