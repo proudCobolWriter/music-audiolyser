@@ -1,5 +1,5 @@
 import re
-import subprocess
+import yt_dlp
 
 from music_audiolyser.core.utils.constants import (
     PATHS_CONFIG,
@@ -9,49 +9,43 @@ from music_audiolyser.core.utils.constants import (
 
 
 def video_download(URL):
-    is_downloaded = False
 
-    command_get_filename = [
-        "yt-dlp",
-        "--extractor-args",
-        "youtube:player_client=android",
-        "--get-filename",
-        "-o",
-        "%(title)s.%(ext)s",
-        URL,
-    ]
+    ydl_opts_filename = {
+        "extractor_args": {"youtube": {"player_client": ["android"]}},
+        "outtmpl": "%(title)s.%(ext)s",
+        "quiet": True,
+        "simulate": True,  
+    }
 
     try:
-        result = subprocess.run(
-            command_get_filename, capture_output=True, text=True, check=True
-        )
+        with yt_dlp.YoutubeDL(ydl_opts_filename) as ydl:
+            info = ydl.extract_info(URL, download=False)
+            video_filename = ydl.prepare_filename(info)
+            video_filename = re.sub(r"\.[^.]+$", f".{YT_DLP_AUDIO_FORMAT}", video_filename)
 
-        video_filename = result.stdout.strip()
         print("vidéo " + video_filename)
-        video_filename = re.sub(r"\.[^.]+$", f".{YT_DLP_AUDIO_FORMAT}", video_filename)
-        if (PATHS_CONFIG["downloads"] / video_filename).exists():
-            is_downloaded = True
-
-        command_download = [
-            "yt-dlp",
-            "--extractor-args",
-            "youtube:player_client=android",
-            "-f",
-            "bestaudio/best",
-            "--extract-audio",
-            "--audio-format",
-            YT_DLP_AUDIO_FORMAT,
-            "--verbose",
-            "-o",
-            YT_DL_OUTPUT,
-            URL,
-        ]
-
-        if not is_downloaded:
-            subprocess.run(command_download, check=True)
-            print("Download complete.")
 
         file_path = PATHS_CONFIG["downloads"] / video_filename
+        is_downloaded = file_path.exists()
+
+        if not is_downloaded:
+
+            ydl_opts_download = {
+                "extractor_args": {"youtube": {"player_client": ["android"]}},
+                "format": "bestaudio/best",
+                "postprocessors": [{
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": YT_DLP_AUDIO_FORMAT,
+                }],
+                "outtmpl": YT_DL_OUTPUT,
+                "verbose": True,
+            }
+
+            with yt_dlp.YoutubeDL(ydl_opts_download) as ydl:
+                ydl.download([URL])
+
+            print("Download complete.")
+
         names = re.match(r"^(.*?)\s*[-|–|—｜⧸]\s*(.*?)(\.\w{2,4})?$", video_filename)
         if names:
             artist_name = names.group(1)
@@ -62,7 +56,7 @@ def video_download(URL):
 
         return str(file_path), artist_name, title
 
-    except subprocess.CalledProcessError as e:
+    except yt_dlp.utils.DownloadError as e:
         print(f"Error during the process of yt-dlp: {e}")
     except Exception as e:
         print(f"Unexpected error: {e}")
