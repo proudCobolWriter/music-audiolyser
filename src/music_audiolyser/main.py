@@ -1,5 +1,5 @@
-import sys
 import multiprocessing
+import sys
 
 from music_audiolyser.UI.UI import App
 

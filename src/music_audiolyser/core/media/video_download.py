@@ -16,6 +16,7 @@ def video_download(URL):
         "outtmpl": "%(title)s.%(ext)s",
         "quiet": True,
         "simulate": True,
+        "nocheckcertificate": True,
     }
 
     try:
@@ -44,6 +45,7 @@ def video_download(URL):
                 ],
                 "outtmpl": YT_DL_OUTPUT,
                 "verbose": True,
+                "nocheckcertificate": True,
             }
 
             with yt_dlp.YoutubeDL(ydl_opts_download) as ydl:
