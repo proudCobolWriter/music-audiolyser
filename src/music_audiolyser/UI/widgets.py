@@ -29,9 +29,10 @@ class PopUp(ctk.CTkToplevel):
 
     def get_name(self, event=None):
         name = self.entry.get()
+        self.entry.unbind("<Return>")
         if self.on_submit:
             self.on_submit(name)
-        self.destroy()
+        self.after(10, self.destroy)
 
 
 class ProgressPopUp(ctk.CTkToplevel):
