@@ -32,6 +32,7 @@ class TFWorkerSocket:
     def __init__(self, *_, **kwargs) -> None:
         self.PORT = PORT
         self.HOST = HOST
+        self.eventEmitter = kwargs.pop("eventEmitter", None)
         self.__dict__.update(kwargs)
 
         if not (self.PORT >= 1024 and self.PORT <= 2**16):
@@ -78,21 +79,26 @@ class TFWorkerSocket:
                     )
 
                 data = self.Connection.recv(RECEIVE_BUFFER)
-                logger.debug(f"Received packet: {data = }")
+                decodedBuffer = data.decode().strip()
 
-                if not data:  # or equals to ''
+                logger.debug(f"Received packet: {decodedBuffer = }")
+
+                if not data:
                     logger.info("Socket connection has been severed, awaiting new connection")
                     self.Connection, self.ClientAddress = None, None
                     continue
 
-                decodedBuffer = data.decode()
-
-                if decodedBuffer.strip() == "STOP":
+                if decodedBuffer == "STOP":
                     logger.info('Socket connection is closing gracefully after a "STOP" request')
                     break
 
+                ee = self.__dict__.get("eventEmitter")
+
+                if ee:
+                    ee.emit("packet-received", decodedBuffer)
+
                 self.Connection.sendall(data)
-                logger.debug(f"Sent data: {data}")
+                logger.debug(f"Sent data: {decodedBuffer}")
             except socket.error:
                 logger.error(
                     "Encountered an error while handling client connections (a RST request has likely been sent by the peer to disconnect)",

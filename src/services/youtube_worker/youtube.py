@@ -1,11 +1,12 @@
 from urllib.parse import urlparse, parse_qs
-from typing import IO, Union, Callable, Any
+from typing import IO, Union
 from functools import wraps
 from pathlib import Path
 from subprocess import run, call, Popen, PIPE, STDOUT, DEVNULL, CalledProcessError
 
+import asyncio as aio
 import re as regex
-import asyncio
+import threading
 import logging
 import pprint
 import random
@@ -13,9 +14,9 @@ import json
 import time
 import os
 
-from services.logging.custom import CustomFormatter as cf
-
 # Setting up the custom colored logger
+
+from services.logging.custom import CustomFormatter as cf
 
 logger = logging.getLogger("YouTube")
 logger.setLevel(logging.DEBUG)
@@ -29,8 +30,8 @@ logger.addHandler(colorlog)
 # CONSTANTS
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-OUTPUT_PATH = ROOT_DIR / ".cache" / "songs"
-MAX_CACHE_SIZE = 100  # in MB
+OUTPUT_PATH = ROOT_DIR / ".." / ".cache" / "songs"
+MAX_CACHE_SIZE = 1024  # in MB
 MAX_YT_VIDEO_DURATION = 10  # in minutes
 YOUTUBE_CLIENT = "android"
 AUDIO_QUALITY = "best"  # see docs: https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#extractor-options
@@ -83,6 +84,11 @@ def log_subprocess_output(pipe: IO[bytes], decode: bool = True, level: int = 10)
 
     for line in iter(pipe.readline, b""):  # b'\n'-separated lines
         decoded = line.decode("utf-8")
+
+        # Remove the residual trailing new line char
+        if decoded[-1] == "\n":
+            decoded = decoded[:-1]
+
         logger.log(level, "Extracted line from subprocess STDOUT: %s", decoded if decode else line)
         lines.append(decoded)
 
@@ -114,19 +120,35 @@ class YTDownloader:
         check_tool_cli(["ffmpeg", "-version"])
         check_tool_cli(["ffprobe", "-version"])
 
-        self.queue: asyncio.Queue[str] = asyncio.Queue()
+        self.queue: aio.Queue[str] = aio.Queue()
         self.queued_ids: set[str] = set()
         self.active_downloads: set[str] = set()
         self.workers = workers
         self.worker_tasks = []
+        self.workers_created = 0
 
     async def worker(self):
+        # Hacky way to keep track of the number of the worker
+        self.workers_created += 1
+        i = self.workers_created
+
+        logger.info(f"Worker ({self.workers_created}) summoned at thread {threading.get_ident()}")
+
         while True:
+            logger.info(f"Worker ({i}) waiting...")
+
+            # Weird polling workaround here, the task is dropped (turns into running=False basically) during the wait when queue is empty (...qsize() < 1)
+            # it basically never resolves when the queue starts out being empty...
+            while self.queue.qsize() == 0:
+                await aio.sleep(0.1)
+
             url = await self.queue.get()
+
+            logger.info(f"Worker ({i}) picking up job...")
 
             try:
                 if url in self.active_downloads:
-                    logger.warning(f"Already downloading {url = }, ignoring...")
+                    logger.warning(f"Worker ({i}) reports:\nAlready downloading {url = }, ignoring...")
                     continue
 
                 self.active_downloads.add(url)
@@ -135,12 +157,12 @@ class YTDownloader:
                     YTDownloader.download(url)
                     YTDownloader.clear_cache()
 
-                await asyncio.sleep(random.uniform(1, 3))
-                await asyncio.to_thread(run_thread, url)
-            except asyncio.CancelledError:
+                await aio.sleep(random.uniform(1, 3))
+                await aio.to_thread(run_thread, url)
+            except aio.CancelledError:
                 raise
             except Exception:
-                logger.error(f"Failure to download {url = }...", exc_info=True)
+                logger.error(f"Worker ({i}) reports:\nFailure to download {url = }...", exc_info=True)
             finally:
                 self.active_downloads.discard(url)
                 self.queued_ids.discard(YTDownloader.extract_id(url))
@@ -152,14 +174,15 @@ class YTDownloader:
 
     async def start(self):
         for _ in range(self.workers):
-            task = asyncio.create_task(self.worker())
+            task = aio.create_task(self.worker())
             self.worker_tasks.append(task)
 
     async def stop(self):
         for task in self.worker_tasks:
             task.cancel()
+            self.workers_created = max(self.workers_created - 1, 0)
 
-        await asyncio.gather(*self.worker_tasks, return_exceptions=True)
+        await aio.gather(*self.worker_tasks, return_exceptions=True)
 
     def __repr__(self) -> None:
         fields = ", ".join(f"{i!r}={v!r}" for (i, v) in zip(self.__dict__.keys(), self.__dict__.values()))
@@ -200,6 +223,24 @@ class YTDownloader:
 
         self.queued_ids.add(ytbid)
         self.queue.put_nowait(url)
+
+    async def enqueue_async(self, url: str):
+        if not isinstance(url, str):
+            logger.error("A string representative of an URL must be given", exc_info=True)
+            return
+
+        ytbid = YTDownloader.extract_id(url)
+
+        if ytbid is None:
+            logger.warning(f"Invalid youTube URL: {url}")
+            return
+
+        if ytbid in self.queued_ids:
+            logger.warning(f"Tried to add a duplicate {url = }, ignoring...")
+            return
+
+        self.queued_ids.add(ytbid)
+        await self.queue.put(url)
 
     @staticmethod
     def fetch_playlist_items(url: str) -> list[Union[str, None]]:
@@ -244,6 +285,9 @@ class YTDownloader:
 
     @staticmethod
     def download(urls: Union[str, list[str]], path: Union[str, Path] = OUTPUT_PATH):
+        # an issue with playlists is that as of right now, all of its titles will be processed
+        # on one single worker thread, instead of spreading out...
+
         if isinstance(urls, str):  # ensuring list of strings for the for loop
             if urls.find("list") != -1:  # is a YouTube playlist?
                 logger.info("Detected a playlist input, fetching its content now:")
@@ -317,7 +361,7 @@ class YTDownloader:
                     "thumbnails": jsondict["thumbnails"],
                 }
 
-                logger.debug("Data gathered about the video:" + "\n" * 2 + pprint.pformat(metadata))
+                logger.debug("Data gathered about the video:\n" + pprint.pformat(metadata))
 
                 if metadata["duration"] > MAX_YT_VIDEO_DURATION * 60:
                     logger.warning("A video longer than 10 minutes was provided, aborting")
@@ -366,7 +410,7 @@ class YTDownloader:
                 )
 
     @staticmethod
-    def get_cache_size(path: Union[str, Path]) -> int:
+    def get_cache_size(path: Union[str, Path] = OUTPUT_PATH) -> int:
         dir = os.listdir(path)
         files = [os.path.getsize(path / f) for f in dir if os.path.isfile(path / f)]
 
@@ -377,8 +421,8 @@ class YTDownloader:
         return total_size
 
     @staticmethod
-    def clear_cache(path: Union[str, Path]) -> tuple[int, int]:
-        cache_size = YTDownloader.get_cache_size()
+    def clear_cache(path: Union[str, Path] = OUTPUT_PATH) -> tuple[int, int]:
+        cache_size = YTDownloader.get_cache_size(path)
 
         if cache_size <= MAX_CACHE_SIZE * (1024**2):
             return

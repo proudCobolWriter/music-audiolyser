@@ -91,7 +91,8 @@ $ source .venv/bin/activate
 [ ] - Add 404 page view and pathing<br/>
 [ ] - Transition to Celery and Redis/RabbitMQ<br/>
 [ ] - Check cache if the song already exists<br/>
-[ ] - Upgrade the socket from synchronous to asynchronous design
+[ ] - Upgrade the socket from synchronous to asynchronous design<br />
+[ ] - Remove cleanly the .json files when purging cache
 
 ### Powered by ESSENTIA AI and models, along with Tensor Flow.
 
