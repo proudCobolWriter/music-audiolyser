@@ -52,3 +52,9 @@ export default tseslint.config({
     },
 });
 ```
+
+Download the PNPM package manager with:
+
+```bash
+$ npm install -g pnpm
+```
