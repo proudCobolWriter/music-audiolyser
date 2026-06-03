@@ -5,8 +5,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Student, Song
 
-from music_app.services.downloader_process import command_queue
-
 import json
 
 

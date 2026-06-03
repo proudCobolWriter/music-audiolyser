@@ -73,8 +73,8 @@ else:
             musicView,
             name="index",
         ),
-        path(r"sendName/", sendName, name="send-student"),
-        path(r"sendSong/", sendSong, name="send-song"),
+        path(r"send-name/", sendName, name="send-student"),
+        path(r"sen-song/", sendSong, name="send-song"),
         # TODO: Add 404 page view and pathing
     ]
 

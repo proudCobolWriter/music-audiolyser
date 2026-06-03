@@ -1,8 +1,6 @@
 from django.apps import AppConfig
 from logging import getLogger
 
-from .services.downloader_process import start_downloader
-
 import os
 
 
@@ -17,4 +15,4 @@ class MusicAppConfig(AppConfig):
         logger = getLogger(self.name)
         logger.info(f"{self.verbose_name} is ready!")
 
-        start_downloader()
+        # start_downloader()

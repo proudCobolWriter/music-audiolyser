@@ -56,3 +56,7 @@ migrate:
 
 migrations:
 	python3.9 src/manage.py makemigrations
+
+static:
+	python3.9 src/manage.py collectstatic --no-input --clear
+	touch ../static/.git.keep

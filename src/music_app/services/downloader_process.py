@@ -1,5 +1,5 @@
 from multiprocessing import Process, Queue
-from tensorflow_worker.services.yt_downloader import YTDownloader
+from .services.youtube_worker.youtube import YTDownloader
 
 import asyncio
 
