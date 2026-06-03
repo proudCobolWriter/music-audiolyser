@@ -33,7 +33,8 @@
         "prettify:check": "prettier . --check",
         "prettify:write": "prettier . --write",
         "prepare": "cd ../.. && husky src/vite/.husky || true",
-        "collectstatic": "wsl bash -c \"source ../../.venv/bin/activate && pip list && python ../manage.py collectstatic --no-input --clear && touch ../static/.gitkeep\"",
+        "collectstatic-wsl": "wsl bash -c \"source ~/.venv/bin/activate && pip list && python ../manage.py collectstatic --no-input --clear && touch ../static/.gitkeep\"",
+        "collectstatic": "source ~/.venv/bin/activate && pip list && python ../manage.py collectstatic --no-input --clear && touch ../static/.git.keep",
         "test": "Echo \"Error: no test specified\" && exit 0"
     },
     "dependencies": {
