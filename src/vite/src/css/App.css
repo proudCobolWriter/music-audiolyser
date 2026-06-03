@@ -7,7 +7,7 @@
 
 .logo {
     height: 5em;
-    padding: 1.5em;
+    padding: 1em;
     will-change: filter;
     transition: filter 300ms;
 }
@@ -33,11 +33,26 @@
     }
 }
 
-.read-the-docs {
-    color: #888;
+input:-webkit-autofill {
+    animation-name: autofill-cancel;
+    animation-fill-mode: both;
 }
 
-.header-top {
+.read-the-docs {
+    color: #888;
+    padding-top: 5px;
+}
+
+.no-wrap {
+    text-wrap-mode: nowrap;
+}
+
+.header-container {
+    z-index: 1000000;
+}
+
+.header-container header {
+    z-index: inherit;
     position: fixed;
     top: 0;
     left: 0;
@@ -46,8 +61,19 @@
     background: var(--footer-color);
 }
 
+.gradient-white {
+    z-index: inherit;
+    position: fixed;
+    top: 2em;
+    left: 0;
+    right: 0;
+    height: 5em;
+    background: linear-gradient(white, transparent);
+}
+
 #welcome-text {
-    position: relative;
+    position: fixed;
+    width: 100vw;
 }
 
 .text-align-center {
@@ -59,7 +85,7 @@
 }
 
 .displaced-right-text {
-    margin-left: 1.6em;
+    margin-left: calc(50vw - 2.5em);
 }
 
 #name-form,
@@ -91,10 +117,48 @@
 }
 
 .main-container {
-    position: relative;
-    margin-bottom: 20vh;
-    max-width: fit-content;
+    position: absolute;
+    transition: margin-top 1s ease-in;
+    left: 0;
+    width: 100vw;
     margin-inline: auto;
+    margin-top: -10vh;
+}
+
+.intro-container {
+    transition: opacity 1s linear;
+}
+
+.hidden {
+    opacity: 0;
+}
+
+.github-icon-container {
+    position: fixed;
+    z-index: 1000000;
+    right: 0;
+    top: 0;
+}
+
+.github-corner:focus {
+    outline: none;
+    border: none;
+}
+
+.input-container {
+    position: relative;
+    top: calc(3.2em * 2);
+}
+
+.tenvh-margin-top {
+    margin-top: 10vh;
+}
+
+.video-preview img {
+    width: 15vw;
+    aspect-ratio: calc(16 / 9);
+    height: auto;
+    border-radius: 8px;
 }
 
 .logo {
@@ -103,6 +167,13 @@
     justify-content: center;
     align-items: center;
     align-content: center;
+}
+
+.footer a:focus,
+.footer a:focus-visible {
+    outline: none;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
 }
 
 .input-box {
@@ -116,13 +187,13 @@
     box-shadow:
         0 0 0.4vw rgba(0, 0, 0, 0.5),
         0 0 0 0.15vw transparent;
-    border-radius: 0.4vw;
+    border-radius: 8px;
     border: none;
     outline: none;
     padding: 0.4vw;
     transition: 0.4s;
-    width: 10vw;
-    min-width: 120px;
+    width: 15vw;
+    min-width: 250px;
     user-select: none;
 }
 
@@ -194,4 +265,32 @@
 .button-29:active {
     box-shadow: #3c4fe0 0 3px 7px inset;
     transform: translateY(2px);
+}
+
+.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out;
+}
+
+@keyframes octocat-wave {
+    0%,
+    100% {
+        transform: rotate(0);
+    }
+    20%,
+    60% {
+        transform: rotate(-25deg);
+    }
+    40%,
+    80% {
+        transform: rotate(10deg);
+    }
+}
+
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none;
+    }
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+    }
 }

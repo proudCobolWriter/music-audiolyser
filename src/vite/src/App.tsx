@@ -10,18 +10,23 @@ import { FormEvent, useEffect, useState, type FC } from "react";
 
 // Resources importing
 
+import GithubCornerLogo from "./assets/github-corner-right.svg?react";
 import websiteLogo from "/favicon.svg?url";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "./assets/vite.svg";
 import "./css/App.css";
 
+// CONSTANTS
+
+const IMAGE_THUMBNAIL_PREFIX = "https://img.youtube.com/vi/";
+
 // Component definition
 
 const App: FC = () => {
     const [name, setName] = useState("");
-    const [welcomeText, setWelcomeText] = useState("");
-
+    const [welcomeText, setWelcomeText] = useState("‎ ");
     const [displaced, setDisplaced] = useState(true);
+    const [previewLink, setPreviewLink] = useState(IMAGE_THUMBNAIL_PREFIX);
 
     const fullText = "Bienvenue";
 
@@ -100,6 +105,17 @@ const App: FC = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [name]);
 
+    const parseVideoId = (url_string: string): string | false => {
+        const regExp = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\\&\\?]*).*/;
+        const match = url_string.match(regExp);
+
+        if (match && match.length >= 2 && match[1].length == 11) {
+            return match[1];
+        }
+
+        return false;
+    };
+
     const onSubmitNameHandler = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
@@ -118,7 +134,7 @@ const App: FC = () => {
             });
 
             if (!response.ok) {
-                throw new Error("Erreur lors de la requête");
+                throw new Error("An error occurred during the request");
             }
 
             const data = await response.json();
@@ -139,27 +155,47 @@ const App: FC = () => {
         const formData = new FormData(event.currentTarget);
         const song = formData.get("song") as string;
 
-        console.log(song);
+        const songId = parseVideoId(song);
+
+        if (songId === false) {
+            console.error("Unable to retrieve the song id");
+            return;
+        }
+
+        setPreviewLink(IMAGE_THUMBNAIL_PREFIX + songId + "/maxresdefault.jpg");
     };
 
     return (
         <>
             <meta name="description" content="Music Analyser created using React, Vite and Django." />
             <link rel="icon" type="image/svg+xml" href={websiteLogo} />
-            <header className="header-top">
-                <a>placeholder</a>
-            </header>
-            <div className="main-container">
-                <div className="header-container">
+            <div className="header-container">
+                <header>
+                    <a>placeholder</a>
+                </header>
+                <div className="gradient-white" />
+                <div className="github-icon-container">
+                    <a
+                        href="https://github.com/proudCobolWriter/music-audiolyser"
+                        className="github-corner"
+                        aria-label="View source on GitHub"
+                        target="_blank"
+                    >
+                        <GithubCornerLogo />
+                    </a>
+                </div>
+            </div>
+            <div className={"main-container" + (name === "" ? " tenvh-margin-top" : "")}>
+                <div className={"intro-container " + (name !== "" ? "hidden" : "")}>
                     <h1 id="topmost-title">Music Audiolyser</h1>
                     <p id="title-desc">L'analyse musicale par excellence</p>
-                    <h1
-                        id="welcome-text"
-                        className={displaced ? "displaced-right-text text-align-start" : "text-align-center"}
-                    >
-                        {welcomeText}
-                    </h1>
                 </div>
+                <h1
+                    id="welcome-text"
+                    className={"no-wrap " + (displaced ? "displaced-right-text text-align-start" : "text-align-center")}
+                >
+                    {welcomeText}
+                </h1>
                 <div className="input-container">
                     {!name ? (
                         <form onSubmit={onSubmitNameHandler} id="name-form">
@@ -181,6 +217,11 @@ const App: FC = () => {
                         <form onSubmit={onSubmitSongHandler} id="song-form">
                             <label>Entrez les musiques que vous écoutez</label>
                             <p>Seuls les liens YouTube sont acceptés (vidéo ou playlist)</p>
+                            <div className="video-preview">
+                                <img src={previewLink} />
+                                <p className="video-preview-stat video-title">Titre de la vidéo</p>
+                                <p className="video-preview-stat video-duration">10:23</p>
+                            </div>
                             <input
                                 name="song"
                                 type="text"

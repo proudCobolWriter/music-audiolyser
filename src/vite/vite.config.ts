@@ -2,6 +2,7 @@ import { resolve } from "path";
 
 import { defineConfig, type UserConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
+import svgr from "vite-plugin-svgr";
 
 // @ts-ignore
 const getFileExtension = (filename: string): string => {
@@ -89,6 +90,6 @@ export default defineConfig(
                     },
                 },
             },
-            plugins: [react()],
+            plugins: [react(), svgr()],
         }) satisfies UserConfig,
 );
