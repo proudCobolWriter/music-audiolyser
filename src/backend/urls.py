@@ -35,7 +35,7 @@ from django.views.generic.base import (
     RedirectView,
 )
 
-from music_app.views import index as musicView, sendName, sendSong
+from music_app.views import index as musicView, sendName, sendSong, checkSong
 
 from logging import (
     getLogger,
@@ -73,8 +73,9 @@ else:
             musicView,
             name="index",
         ),
-        path(r"send-name/", sendName, name="send-student"),
-        path(r"sen-song/", sendSong, name="send-song"),
+        path(r"api/send-name/", sendName, name="send-student"),
+        path(r"api/send-song/", sendSong, name="send-song"),
+        path(r"api/check-song/", checkSong, name="check-song"),
         # TODO: Add 404 page view and pathing
     ]
 

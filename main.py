@@ -3,7 +3,7 @@ import sys
 import django
 
 # Constants
-CHECK_PY_VERSION = False
+CHECK_PY_VERSION = True
 REQUIRED_PY_VERSION = "3.9.18"
 
 # Starting the node/webserver

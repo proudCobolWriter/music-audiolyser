@@ -8,7 +8,7 @@ import multiprocessing
 
 def createS():
     s = tfsocket.TFWorkerSocket()
-    s.createSocket()
+    s.createServerConnection()
 
 
 p1 = multiprocessing.Process(target=createS)

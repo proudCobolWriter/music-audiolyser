@@ -22,7 +22,7 @@ logger.addHandler(colorlog)
 
 ee = EventEmitter()
 socket = TFWorkerSocket(eventEmitter=ee)
-downloader = YTDownloader()
+downloader = YTDownloader(eventEmitter=ee)
 loop: aio.AbstractEventLoop = None
 
 
@@ -43,6 +43,11 @@ def handle_packet(data: str):
         downloader.enqueue(url)
 
 
+@ee.on("dl-response")
+def handle_download(data: str):
+    socket.send("CHECK-SONG " + data)
+
+
 async def stop():
     await downloader.stop()
 
@@ -51,29 +56,10 @@ async def main():
     await downloader.start()
     logger.info("Initialized downloader")
 
-    aio.create_task(aio.to_thread(socket.createSocket))
+    aio.create_task(aio.to_thread(socket.createServerConnection))
     logger.info("Initialized socket")
 
     await aio.Event().wait()
-
-
-####### SCRIPT TESTING PART
-
-import time
-import socket as sk
-import multiprocessing
-
-
-def createS():
-    time.sleep(1)
-
-    ls = sk.socket(sk.AF_INET, sk.SOCK_STREAM)  # AF_INET -> IPv4, SOCK_STREAM -> ICP
-    ls.connect(("127.0.0.1", 65432))
-    ls.sendall("ADD-VIDEO https://www.youtube.com/watch?v=4kHl4FoK1Ys".encode())
-
-
-p1 = multiprocessing.Process(target=createS)
-p1.start()
 
 
 if __name__ == "__main__":

@@ -1,11 +1,40 @@
 from django.shortcuts import render
 from backend.settings import BASE_DIR
+from logging import getLogger
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Student, Song
 
+from .services.tf_connection import socket, ee
+
 import json
+
+app_name = "music_app"
+logger = getLogger(app_name)
+
+songsFeedback = {
+    # key = value
+    # ["youtube-id"] = {
+    #       ...
+    # }
+}
+
+
+@ee.on("packet-received")
+def handlePacket(data: str):
+    request = "CHECK-SONG"
+
+    if data.startswith(request):
+        payload = data[len(request) :]
+
+        if len(payload) == 0:
+            return logger.error("No payload detected", exc_info=True)
+
+        data = json.loads(payload)
+        key = data["id"]
+
+        songsFeedback[key] = data
 
 
 def Res(status: int, message: str):
@@ -58,20 +87,37 @@ def sendSong(request):
     song, created = Song.objects.get_or_create(youtube_id=youtube_id)
     song.listeners.add(student)
 
-    # get_downloader() += "https://www.youtube.com/watch?v=" + youtube_id
-
-    command_queue.put("https://www.youtube.com/watch?v=" + youtube_id)
+    socket.send("ADD-VIDEO " + "https://www.youtube.com/watch?v=" + youtube_id)
 
     return JsonResponse(
         {
             "success": True,
             "student_name": student.name,
             "song_id": song.id,
-            "song_name": song.youtube_id,
+            "song_name": youtube_id,
             "created": created,
         }
     )
 
 
+@csrf_exempt
+def checkSong(request):
+    if request.method != "POST":
+        return Res(400, "POST required")
+
+    data = json.loads(request.body)
+    youtube_id = data.get("youtube-id", "")
+
+    matchingSong = next((song for song in songsFeedback.values() if song["id"] == youtube_id), None)
+    responseDict = {"success": False}
+
+    if matchingSong:
+        responseDict["success"] = True
+        responseDict.update(matchingSong)
+
+    return JsonResponse(responseDict)
+
+
+@csrf_exempt
 def index(request):
     return render(request, BASE_DIR / "backend" / "templates" / "base.html")

@@ -30,8 +30,8 @@ logger.addHandler(colorlog)
 # CONSTANTS
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-OUTPUT_PATH = ROOT_DIR / ".." / ".cache" / "songs"
-MAX_CACHE_SIZE = 1024  # in MB
+OUTPUT_PATH = ROOT_DIR / ".." / ".." / ".cache" / "songs"
+MAX_CACHE_SIZE = 1024 * 10  # in MB
 MAX_YT_VIDEO_DURATION = 10  # in minutes
 YOUTUBE_CLIENT = "android"
 AUDIO_QUALITY = "best"  # see docs: https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#extractor-options
@@ -115,7 +115,7 @@ def check_tool_cli(args: list[str]) -> None:
 
 
 class YTDownloader:
-    def __init__(self, workers: int = 3) -> None:
+    def __init__(self, workers: int = 3, **kwargs) -> None:
         # Check for ffmpeg and ffprobe (required dependencies)
         check_tool_cli(["ffmpeg", "-version"])
         check_tool_cli(["ffprobe", "-version"])
@@ -126,6 +126,9 @@ class YTDownloader:
         self.workers = workers
         self.worker_tasks = []
         self.workers_created = 0
+
+        self.eventEmitter = kwargs.pop("eventEmitter", None)
+        self.__dict__.update(kwargs)
 
     async def worker(self):
         # Hacky way to keep track of the number of the worker
@@ -154,8 +157,10 @@ class YTDownloader:
                 self.active_downloads.add(url)
 
                 def run_thread(url: str):
-                    YTDownloader.download(url)
+                    data = YTDownloader.download(url)
                     YTDownloader.clear_cache()
+
+                    self.eventEmitter.emit("dl-response", json.dumps(data, indent=None, ensure_ascii=False))
 
                 await aio.sleep(random.uniform(1, 3))
                 await aio.to_thread(run_thread, url)
@@ -185,7 +190,7 @@ class YTDownloader:
         await aio.gather(*self.worker_tasks, return_exceptions=True)
 
     def __repr__(self) -> None:
-        fields = ", ".join(f"{i!r}={v!r}" for (i, v) in zip(self.__dict__.keys(), self.__dict__.values()))
+        fields = ", ".join(f"{k!r}={v!r}" for k, v in self.__dict__.items())
         return f"{self.__class__.__name__}({fields})"
 
     def __str__(self) -> None:
@@ -284,9 +289,17 @@ class YTDownloader:
         return url.path.lstrip("/")
 
     @staticmethod
-    def download(urls: Union[str, list[str]], path: Union[str, Path] = OUTPUT_PATH):
+    def download(urls: Union[str, list[str]], path: Union[str, Path] = OUTPUT_PATH) -> dict:
         # an issue with playlists is that as of right now, all of its titles will be processed
         # on one single worker thread, instead of spreading out...
+
+        return_package = {
+            "id": "",
+            "title": "",
+            "duration": 0,
+            "view_count": 0,
+            "too_long": False,
+        }
 
         if isinstance(urls, str):  # ensuring list of strings for the for loop
             if urls.find("list") != -1:  # is a YouTube playlist?
@@ -363,8 +376,13 @@ class YTDownloader:
 
                 logger.debug("Data gathered about the video:\n" + pprint.pformat(metadata))
 
+                return_package = {
+                    key: metadata[key] if key in metadata else return_package[key] for key in return_package
+                }
+
                 if metadata["duration"] > MAX_YT_VIDEO_DURATION * 60:
                     logger.warning("A video longer than 10 minutes was provided, aborting")
+                    return_package["too_long"] = True
                     continue
 
                 download_args = [
@@ -408,6 +426,8 @@ class YTDownloader:
                     f"Song \"{metadata['title']}\" has been successfully saved at path: {path}/{metadata['title']}.{AUDIO_FORMAT} \
                     Process has taken {end_time - start_time:.2f} seconds (using perf_counter)"
                 )
+
+        return return_package
 
     @staticmethod
     def get_cache_size(path: Union[str, Path] = OUTPUT_PATH) -> int:

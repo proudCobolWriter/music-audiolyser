@@ -92,7 +92,10 @@ $ source .venv/bin/activate
 [ ] - Transition to Celery and Redis/RabbitMQ<br/>
 [ ] - Check cache if the song already exists<br/>
 [ ] - Upgrade the socket from synchronous to asynchronous design<br />
-[ ] - Remove cleanly the .json files when purging cache
+[ ] - Remove cleanly the .json files when purging cache<br />
+[ ] - Split App.tsx in different components<br />
+[ ] - Make the log stream colored everywhere included in the Django context<br />
+[ ] - Add a progress bar to the YTB/TF downloads
 
 ### Powered by ESSENTIA AI and models, along with Tensor Flow.
 

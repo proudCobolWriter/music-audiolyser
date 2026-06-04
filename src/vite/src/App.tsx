@@ -6,6 +6,25 @@ if (import.meta.env.MODE !== "development") {
     import("vite/modulepreload-polyfill");
 }
 
+type FixedString<N extends number> = { 0: string; length: N } & string;
+
+interface IUserData {
+    created: boolean;
+    name: string;
+    student_id: number;
+    success: boolean;
+}
+
+interface IVideoData {
+    id: FixedString<11>;
+    title: string;
+    duration: number;
+    view_count: number;
+    too_long: boolean;
+}
+
+type VideoDownloadList = Array<IVideoData>;
+
 import { FormEvent, useEffect, useState, type FC } from "react";
 
 // Resources importing
@@ -29,6 +48,9 @@ const App: FC = () => {
     const [previewLink, setPreviewLink] = useState(IMAGE_THUMBNAIL_PREFIX);
 
     const fullText = "Bienvenue";
+
+    const [userData, setUserData] = useState<IUserData | object>({});
+    const [videoDataList, setVideoDataList] = useState<VideoDownloadList>([]);
 
     useEffect(() => {
         let i = 0;
@@ -105,6 +127,52 @@ const App: FC = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [name]);
 
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            if (videoDataList.length > 0) {
+                const videoIds = videoDataList.map((x) => x.id);
+
+                let index = 0,
+                    found = false;
+                while (index < videoDataList.length) {
+                    if (videoDataList[index]["title"] === "") {
+                        found = true;
+                        break;
+                    }
+                    index++;
+                }
+
+                if (!found) return;
+
+                const id = videoIds[index];
+
+                try {
+                    const response = await fetch("/api/check-song/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            "youtube-id": id,
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("An error occurred during the check song API POST request");
+                    }
+
+                    const updatedData: IVideoData = await response.json();
+
+                    setVideoDataList((prev) => prev.map((item) => (item.id === id ? updatedData : item)));
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        }, 1e3);
+
+        return () => clearInterval(interval);
+    });
+
     const parseVideoId = (url_string: string): string | false => {
         const regExp = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\\&\\?]*).*/;
         const match = url_string.match(regExp);
@@ -123,7 +191,7 @@ const App: FC = () => {
         const name = formData.get("name") as string;
 
         try {
-            const response = await fetch("/api/send-name", {
+            const response = await fetch("/api/send-name/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -134,19 +202,18 @@ const App: FC = () => {
             });
 
             if (!response.ok) {
-                throw new Error("An error occurred during the request");
+                throw new Error("An error occurred during the name API POST request");
             }
 
             const data = await response.json();
+            setUserData(data);
 
-            console.log(data);
+            console.log(`Identified as user of id ${(data as IUserData).student_id}`);
 
-            //setName(name);
+            setName(name);
         } catch (error) {
             console.error(error);
         }
-
-        setName(name);
     };
 
     const onSubmitSongHandler = async (event: FormEvent<HTMLFormElement>) => {
@@ -163,6 +230,44 @@ const App: FC = () => {
         }
 
         setPreviewLink(IMAGE_THUMBNAIL_PREFIX + songId + "/maxresdefault.jpg");
+
+        try {
+            const response = await fetch("/api/send-song/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    "youtube-id": songId,
+                    id: (userData as IUserData).student_id,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("An error occurred during the song API POST request");
+            }
+
+            if (songId.length !== 11) {
+                throw new Error("Found a video id longer or shorter than 11 alphanumerical characters");
+            }
+
+            const data = await response.json();
+
+            setVideoDataList((prev) => [
+                ...prev,
+                {
+                    id: songId as FixedString<11>,
+                    title: "",
+                    duration: 0,
+                    view_count: 0,
+                    too_long: false,
+                },
+            ]);
+
+            console.log(data);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
@@ -171,7 +276,7 @@ const App: FC = () => {
             <link rel="icon" type="image/svg+xml" href={websiteLogo} />
             <div className="header-container">
                 <header>
-                    <a>placeholder</a>
+                    <a>MUSIC AUDIOLYSER</a>
                 </header>
                 <div className="gradient-white" />
                 <div className="github-icon-container">
@@ -219,8 +324,14 @@ const App: FC = () => {
                             <p>Seuls les liens YouTube sont acceptés (vidéo ou playlist)</p>
                             <div className="video-preview">
                                 <img src={previewLink} />
-                                <p className="video-preview-stat video-title">Titre de la vidéo</p>
-                                <p className="video-preview-stat video-duration">10:23</p>
+                                <p className="video-preview-stat video-title">
+                                    {videoDataList.length > 0 ? videoDataList[0].title : "Titre de la vidéo"}
+                                </p>
+                                <p className="video-preview-stat video-duration">
+                                    {videoDataList.length > 0
+                                        ? `${Math.trunc(videoDataList[0].duration / 60)}:${videoDataList[0].duration % 60}`
+                                        : "00:00"}
+                                </p>
                             </div>
                             <input
                                 name="song"
