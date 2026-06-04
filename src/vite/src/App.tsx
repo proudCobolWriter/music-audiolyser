@@ -52,6 +52,11 @@ const App: FC = () => {
     const [userData, setUserData] = useState<IUserData | object>({});
     const [videoDataList, setVideoDataList] = useState<VideoDownloadList>([]);
 
+    const viewFormatter = new Intl.NumberFormat("en", {
+        notation: "compact",
+        maximumFractionDigits: 1,
+    });
+
     useEffect(() => {
         let i = 0;
 
@@ -163,6 +168,8 @@ const App: FC = () => {
 
                     const updatedData: IVideoData = await response.json();
 
+                    console.log(updatedData);
+
                     setVideoDataList((prev) => prev.map((item) => (item.id === id ? updatedData : item)));
                 } catch (error) {
                     console.error(error);
@@ -270,6 +277,37 @@ const App: FC = () => {
         }
     };
 
+    const renderTitle = () => {
+        const n = videoDataList.length;
+        const last_elem = videoDataList[n - 1];
+
+        if (!n || last_elem.title === "") return "Titre de la vidéo";
+        return last_elem.title;
+    };
+
+    const renderDuration = () => {
+        const n = videoDataList.length;
+        const last_elem = videoDataList[n - 1];
+
+        if (!n || last_elem.title === "") return "00:00     -     👁 0 view";
+        return `${Math.trunc(last_elem.duration / 60)}:${last_elem.duration % 60}     -     👁 ${viewFormatter.format(last_elem.view_count)} views`;
+    };
+
+    const renderProgressBar = () => {
+        const n = videoDataList.length;
+        const last_elem = videoDataList[n - 1];
+
+        if (!n || last_elem.title === "" || last_elem.too_long) return "progress-value";
+        return "progress-value progress-start-animation";
+    };
+
+    const renderErrorCode = () => {
+        const n = videoDataList.length;
+        const last_elem = videoDataList[n - 1];
+
+        return n !== 0 && last_elem.title !== "" && last_elem.too_long;
+    };
+
     return (
         <>
             <meta name="description" content="Music Analyser created using React, Vite and Django." />
@@ -321,17 +359,21 @@ const App: FC = () => {
                     {name ? (
                         <form onSubmit={onSubmitSongHandler} id="song-form">
                             <label>Entrez les musiques que vous écoutez</label>
-                            <p>Seuls les liens YouTube sont acceptés (vidéo ou playlist)</p>
+                            <p>
+                                Seuls les liens YouTube sont acceptés (vidéo ou <s>playlist</s>)
+                            </p>
                             <div className="video-preview">
                                 <img src={previewLink} />
-                                <p className="video-preview-stat video-title">
-                                    {videoDataList.length > 0 ? videoDataList[0].title : "Titre de la vidéo"}
-                                </p>
-                                <p className="video-preview-stat video-duration">
-                                    {videoDataList.length > 0
-                                        ? `${Math.trunc(videoDataList[0].duration / 60)}:${videoDataList[0].duration % 60}`
-                                        : "00:00"}
-                                </p>
+                                <p className="video-preview-stat video-title">{renderTitle()}</p>
+                                <p className="video-preview-stat video-duration">{renderDuration()}</p>
+                                {renderErrorCode() && (
+                                    <p className="error-msg-label">ERREUR: la vidéo est trop longue!</p>
+                                )}
+                                {!renderErrorCode() && (
+                                    <div className="progress">
+                                        <div className={renderProgressBar()} />
+                                    </div>
+                                )}
                             </div>
                             <input
                                 name="song"

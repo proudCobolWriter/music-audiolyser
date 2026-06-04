@@ -93,8 +93,8 @@ def sendSong(request):
         {
             "success": True,
             "student_name": student.name,
-            "song_id": song.id,
-            "song_name": youtube_id,
+            "song_internal_id": song.id,
+            "song_youtube_id": youtube_id,
             "created": created,
         }
     )
