@@ -1,29 +1,21 @@
 from data.labels.genres import genres
-from essentia.standard import MonoLoader, TensorflowPredictEffnetDiscogs, TensorflowPredict2D
+from essentia.standard import TensorflowPredictEffnetDiscogs, TensorflowPredict2D
 
-from pathlib import Path
+from utils import path_to_str, TF_ROOT_DIR
 
 import numpy as np
 
-TF_ROOT_DIR = Path(__file__).resolve().parent.parent
-PROJECT_ROOT_DIR = TF_ROOT_DIR.parent.parent
-
-def path_to_str(pathlike: Path, absolute: bool = False, relative_from: Path = TF_ROOT_DIR) -> str:
-    if absolute:
-        return str(pathlike.absolute())
-    return str(pathlike.relative_to(relative_from))
-
-def genrePred(audio, dataPath: Path):
+def genrePred(audio):
     if not hasattr(genrePred, "embeddingModel"):
         genrePred.embeddingModel = TensorflowPredictEffnetDiscogs(
-            graphFilename=path_to_str(dataPath / "models" / "pretrained" / "jamendo" / "discogs-effnet-bs64-1.pb", True), output="PartitionedCall:1"
+            graphFilename=path_to_str(TF_ROOT_DIR / "data" / "models" / "pretrained" / "jamendo" / "discogs-effnet-bs64-1.pb", True), output="PartitionedCall:1"
         )
     embeddingModel = genrePred.embeddingModel
 
     embeddings = embeddingModel(audio)
 
     if not hasattr(genrePred, "model"):
-        genrePred.model = TensorflowPredict2D(graphFilename=path_to_str(dataPath / "models" / "pretrained" / "jamendo" / "mtg_jamendo_genre-discogs-effnet-1.pb", True))
+        genrePred.model = TensorflowPredict2D(graphFilename=path_to_str(TF_ROOT_DIR / "data" / "models" / "pretrained" / "jamendo" / "mtg_jamendo_genre-discogs-effnet-1.pb", True))
     model = genrePred.model
 
     predictions = model(embeddings)

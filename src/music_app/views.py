@@ -20,21 +20,39 @@ songsFeedback = {
     # }
 }
 
+# CONSTANTS
+
+CHECK_SONG_REQUEST = "CHECK-SONG"
+GOT_SONG_TF_REQUEST = "GOT-RESULT-SONG"
+
 
 @ee.on("packet-received")
 def handlePacket(data: str):
-    request = "CHECK-SONG"
-
-    if data.startswith(request):
-        payload = data[len(request) :]
+    if data.startswith(CHECK_SONG_REQUEST):
+        payload = data[len(CHECK_SONG_REQUEST) :]
 
         if len(payload) == 0:
-            return logger.error("No payload detected", exc_info=True)
+            return logger.error(f"No payload detected for {CHECK_SONG_REQUEST}", exc_info=True)
 
         data = json.loads(payload)
         key = data["id"]
 
         songsFeedback[key] = data
+    elif data.startswith(GOT_SONG_TF_REQUEST):
+        payload = data[len(GOT_SONG_TF_REQUEST) :]
+
+        if len(payload) == 0:
+            return logger.error(f"No payload detected for {GOT_SONG_TF_REQUEST}", exc_info=True)
+
+        args = payload.split(" ", 1)
+
+        if len(args) == 0 or not isinstance(args[0], str) or len(args[0]) != 11:
+            return logger.error(f"Invalid {GOT_SONG_TF_REQUEST} request", exc_info=True)
+
+        id = args[0]
+        payload = payload[11:]
+
+        print(payload)
 
 
 def Res(status: int, message: str):
@@ -53,7 +71,6 @@ def sendName(request):
         return Res(400, "Missing name")
 
     student, created = Student.objects.get_or_create(name=name)
-
     return JsonResponse(
         {
             "success": True,
