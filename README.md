@@ -67,11 +67,12 @@ python src/music_audiolyser/main.py
 ## Compiled executable
 
 Pre-built binary for Linux is available in the [Actions](../../actions) tab under the latest workflow run (see the **Artifacts** section at the bottom of the page).
+You can also download the latest release, ensuring the presence of the `data/` folder.
 
 The `data/` folder must be placed **next to the executable** for it to work:
 ```
 dist/
-├── main          # or main.exe on Windows
+├── main        
 └── data/
     ├── config/
     ├── db/
